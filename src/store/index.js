@@ -24,7 +24,8 @@ export default () => {
       },
       carouselItems (state, getters) {
         if (!state.data) return []
-        return state.data.results.map(result => ({ image: result[getters.imageField.key] }))
+        // return state.data.results.map(result => ({ image: result[getters.imageField.key] }))
+        return state.data.results.map(result => ({ image: result._thumbnail }))
       },
     },
     mutations: {
@@ -51,7 +52,8 @@ export default () => {
             finalizedAt: getters.config.datasets[0].finalizedAt, // for better caching
             size: 100,
             select: getters.imageField.key,
-            thumbnail: `${state.windowWidth}x${state.windowHeight}`,
+            // round up 100px thumbnail size for better caching
+            thumbnail: `${Math.ceil(state.windowWidth / 100) * 100}x${Math.ceil(state.windowHeight / 100) * 100}`,
             // resizeMode=fitIn or smartCrop or nothing ?
           }
           const { data } = await axios.get(getters.config.datasets[0].href + '/lines', { params })
