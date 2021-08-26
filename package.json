@@ -11,7 +11,7 @@
     "dev": "APP_URL=http://localhost:8080/app df-dev-server",
     "dev-src": "vue-cli-service serve",
     "postpublish": "node scripts/postpublish.js",
-    "prepublish": "PUBLIC_URL=https://cdn.jsdelivr.net/npm/app-carousel@${npm_package_version}/dist vue-cli-service build --modern"
+    "prepublish": "PUBLIC_URL=https://cdn.jsdelivr.net/npm/@data-fair/app-carousel@${npm_package_version}/dist vue-cli-service build --modern"
   },
   "dependencies": {
     "@data-fair/components-app": "^0.2.6",
