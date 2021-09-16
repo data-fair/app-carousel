@@ -19,13 +19,20 @@ export default () => {
       config (state) {
         return state.application && state.application.configuration
       },
+      datasetUrl (state, getters) {
+        return getters.config &&
+          getters.config.datasets &&
+          getters.config.datasets[0] &&
+          getters.config.datasets[0].href
+      },
       imageField (state) {
         return state.schema.find(f => f['x-refersTo'] === 'http://schema.org/image')
       },
-      carouselItems (state, getters) {
-        if (!state.data) return []
-        // return state.data.results.map(result => ({ image: result[getters.imageField.key] }))
-        return state.data.results.map(result => ({ image: result._thumbnail }))
+      webPageField (state, getters) {
+        return !getters.config.distactivateLinks && state.schema.find(f => f['x-refersTo'] === 'https://schema.org/WebPage')
+      },
+      labelField (state, getters) {
+        return !getters.config.hideTitle && state.schema.find(f => f['x-refersTo'] === 'http://www.w3.org/2000/01/rdf-schema#label')
       },
     },
     mutations: {
@@ -36,7 +43,7 @@ export default () => {
     actions: {
       async init ({ state, getters, commit, dispatch }, { windowWidth, windowHeight }) {
         try {
-          const { data: schema } = await axios.get(getters.config.datasets[0].href + '/schema')
+          const { data: schema } = await axios.get(getters.datasetUrl + '/schema')
           commit('setAny', { schema, windowWidth, windowHeight })
         } catch (err) {
           dispatch('setError', err)
@@ -47,17 +54,20 @@ export default () => {
         try {
           if (!getters.imageField) throw new Error('le jeu ne contient pas de colonne image')
           const filters = (getters.config.staticFilters || []).concat([`_exists_:${escape(getters.imageField.key)}`])
+          const select = [getters.imageField.key]
+          if (getters.labelField) select.push(getters.labelField.key)
+          if (getters.webPageField) select.push(getters.webPageField.key)
           const params = {
             qs: filters2qs(filters),
             finalizedAt: getters.config.datasets[0].finalizedAt, // for better caching
             size: 100,
-            select: getters.imageField.key,
+            select: select.join(','),
             // round up 100px thumbnail size for better caching
             thumbnail: `${Math.ceil(state.windowWidth / 100) * 100}x${Math.ceil(state.windowHeight / 100) * 100}`,
             // resizeMode=fitIn or smartCrop or nothing ?
           }
-          const { data } = await axios.get(getters.config.datasets[0].href + '/lines', { params })
-          commit('setAny', { data })
+          const { data } = await axios.get(getters.datasetUrl + '/lines', { params })
+          commit('setAny', { data: data.results })
         } catch (err) {
           dispatch('setError', err)
         }

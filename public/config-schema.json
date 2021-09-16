@@ -16,11 +16,15 @@
     {
       "title": "Présentation",
       "properties": {
-        "primaryColor": {
-          "type": "string",
-          "title": "Couleur primaire",
-          "format": "hexcolor",
-          "default": "#2196F3"
+        "distactivateLinks": {
+          "type": "boolean",
+          "title": "Désactiver les liens",
+          "default": false
+        },
+        "hideTitle": {
+          "type": "boolean",
+          "title": "Cacher les titres",
+          "default": false
         }
       }
     }
