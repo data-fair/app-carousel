@@ -48,3 +48,9 @@
     },
   }
 </script>
+
+<style>
+.v-application, .v-application .text-h4 {
+  font-family: "Nunito", sans-serif!important;
+}
+</style>

@@ -16,6 +16,12 @@
     {
       "title": "Présentation",
       "properties": {
+        "interval":{
+          "type": "integer",
+          "title": "Durée d'affichage des images (sec)",
+          "description": "Mettre à 0 pour désactivera la rotation automatique",
+          "default": 6
+        },
         "distactivateLinks": {
           "type": "boolean",
           "title": "Désactiver les liens",

@@ -3,12 +3,14 @@
     v-if="data && data.length"
     v-model="current"
     :hide-delimiters="true"
-    :cycle="true"
+    :cycle="config.interval > 0"
     :height="windowHeight"
+    :interval="config.interval > 0 ? config.interval*1000 : 1000"
   >
     <v-carousel-item
       v-for="item,i of data"
       :key="i"
+      :eager="eager(current, i)"
     >
       <v-img
         :src="item._thumbnail"
@@ -16,32 +18,41 @@
       >
         <v-overlay
           v-if="labelField || webPageField"
-          style="height:20%;top:80%"
+          :style="`height:${overlayHeight}px;top:${windowHeight-overlayHeight}px`"
         >
           <v-row
             class="white--text"
-            align="end"
-            style="width:100%"
+            align="center"
+            :style="`width:${windowWidth}px`"
           >
-            <h3
-              v-if="!webPageField"
-              class="text-h3"
+            <v-col
+              v-if="labelField"
+              :class="`text-${$vuetify.breakpoint.xs ? 'center' : 'right'} px-6 py-1`"
             >
-              {{ item[labelField.key] }}
-            </h3>
-            <v-btn
-              v-else-if="!webPageField"
-              :href="item[webPageField.key]"
-              large
+              <h4
+                :class="typography[$vuetify.breakpoint.name]"
+              >
+                {{ item[labelField.key] }}
+              </h4>
+            </v-col>
+            <v-col
+              v-if="webPageField"
+              :cols="12"
+              :sm="labelField ? 4 : 12"
+              :md="labelField ? 3 : 12"
+              :xl="labelField ? 2 : 12"
+              class="text-center px-6 py-1"
             >
-              Accéder
-            </v-btn>
-            <a
-              v-else
-              class="text-h3"
-              :href="item[webPageField.key]"
-            >{{ item[labelField.key] }}</a>
-            <v-row />
+              <v-btn
+
+                :href="item[webPageField.key]"
+                :x-large="$vuetify.breakpoint.mdAndUp"
+                :large="$vuetify.breakpoint.sm"
+                outlined
+              >
+                <h4>En savoir plus</h4>
+              </v-btn>
+            </v-col>
           </v-row>
         </v-overlay>
       </v-img>
@@ -56,10 +67,21 @@
     name: 'HelloWorld',
     data: () => ({
       current: 0,
+      typography: {
+        xs: '',
+        sm: 'text-h6',
+        md: 'text-h5',
+        lg: 'text-h4',
+        xl: 'text-h4',
+      },
     }),
     computed: {
       ...mapState(['data']),
-      ...mapGetters(['imageField', 'labelField', 'webPageField']),
+      ...mapGetters(['config', 'labelField', 'webPageField']),
+      overlayHeight () {
+        if (this.$vuetify.breakpoint.xs) return 120
+        return 100
+      },
     },
     created () {
       this.$store.dispatch('init', { windowWidth: this.windowWidth, windowHeight: this.windowHeight })

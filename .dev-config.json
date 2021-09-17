@@ -2,10 +2,12 @@
   "staticFilters": [],
   "datasets": [
     {
-      "href": "http://localhost:5888/data-fair/api/v1/datasets/jep-2018-france",
-      "title": "Journées européennes du patrimoine en France Métropolitaine",
-      "id": "jep-2018-france"
+      "href": "http://localhost:5888/data-fair/api/v1/datasets/jep-2019-france",
+      "title": "Journées européennes du patrimoine en France - 2019 ",
+      "id": "jep-2019-france"
     }
   ],
-  "primaryColor": "#215279"
+  "hideTitle": false,
+  "distactivateLinks": false,
+  "interval": 0
 }
