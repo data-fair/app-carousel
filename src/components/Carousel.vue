@@ -27,7 +27,7 @@
           >
             <v-col
               v-if="labelField"
-              :class="`text-${$vuetify.breakpoint.xs ? 'center' : 'right'} px-6 py-1`"
+              :class="`text-${($vuetify.breakpoint.xs || !webPageField) ? 'center' : 'right'} px-6 py-1`"
             >
               <h4
                 :class="typography[$vuetify.breakpoint.name]"

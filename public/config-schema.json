@@ -25,11 +25,13 @@
         "distactivateLinks": {
           "type": "boolean",
           "title": "Désactiver les liens",
+          "description": "Un bouton 'en savoir plus' est automatiquement ajouté quand la source de données a une colonne avec le concept 'page web'. Cette option permet de le cacher.",
           "default": false
         },
         "hideTitle": {
           "type": "boolean",
           "title": "Cacher les titres",
+          "description": "Un texte sur fond sombre est automatiquement ajouté quand la source de données a une colonne avec le concept 'libellé'. Cette option permet de le cacher.",
           "default": false
         }
       }
