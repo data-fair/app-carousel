@@ -19,8 +19,10 @@
         "interval":{
           "type": "integer",
           "title": "Durée d'affichage des images (sec)",
-          "description": "Mettre à 0 pour désactivera la rotation automatique",
-          "default": 6
+          "description": "Mettre à 0 pour désactiver la rotation automatique",
+          "default": 6,
+          "minimum": 0,
+          "maximum": 30
         },
         "distactivateLinks": {
           "type": "boolean",
