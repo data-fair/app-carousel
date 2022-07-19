@@ -36,7 +36,7 @@
               </h4>
             </v-col>
             <v-col
-              v-if="webPageField"
+              v-if="webPageField && item[webPageField.key]"
               :cols="12"
               :sm="labelField ? 4 : 12"
               :md="labelField ? 3 : 12"
@@ -44,10 +44,10 @@
               class="text-center px-6 py-1"
             >
               <v-btn
-
-                :href="item[webPageField.key]"
+                :href="(!item[webPageField.key].includes('http') ? 'http://' : '') + item[webPageField.key]"
                 :x-large="$vuetify.breakpoint.mdAndUp"
                 :large="$vuetify.breakpoint.sm"
+                :target="config.linksTarget || '_top'"
                 outlined
               >
                 <h4>En savoir plus</h4>

@@ -24,6 +24,18 @@
           "minimum": 0,
           "maximum": 30
         },
+        "linksTarget": {
+          "type": "string",
+          "title": "Mode d'ouverture des liens",
+          "oneOf": [{
+            "const": "_top",
+            "title": "Dans le même onglet"
+          },{
+            "const": "_blank",
+            "title": "Dans un nouvel onglet"
+          }],
+          "default": "_top"
+        },
         "distactivateLinks": {
           "type": "boolean",
           "title": "Désactiver les liens",

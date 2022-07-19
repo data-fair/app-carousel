@@ -9,5 +9,6 @@
   ],
   "hideTitle": false,
   "distactivateLinks": false,
-  "interval": 30
+  "interval": 30,
+  "linksTarget": "_top"
 }
