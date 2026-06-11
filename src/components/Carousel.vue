@@ -1,37 +1,83 @@
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useDisplay } from 'vuetify'
+import { useWindowSize } from '@vueuse/core'
+import { useConfig } from '@/composables/config'
+import { useData } from '@/composables/useData'
+
+const { config } = useConfig()
+const { data, labelField, webPageField } = useData()
+const { width, height: windowHeight } = useWindowSize()
+const display = useDisplay()
+
+const current = ref(0)
+
+const carouselHeight = computed(() => windowHeight.value || 800)
+
+const cycle = computed(() => (config.value?.interval ?? 0) > 0)
+const interval = computed(() => {
+  const v = config.value?.interval ?? 0
+  return v > 0 ? v * 1000 : 1000
+})
+
+const overlayHeight = computed(() => display.xs.value ? 120 : 100)
+
+const typography: Record<string, string> = {
+  xs: '',
+  sm: 'text-h6',
+  md: 'text-h5',
+  lg: 'text-h4',
+  xl: 'text-h4'
+}
+
+const carouselWidth = computed(() => width.value || 1280)
+
+function eager (i: number): boolean {
+  if (!data.value.length) return false
+  if (i === (current.value - 1 + data.value.length) % data.value.length) return true
+  if (i === (current.value + 1) % data.value.length) return true
+  if (i === (current.value + 2) % data.value.length) return true
+  return false
+}
+
+function normalizeUrl (url: string) {
+  return url.includes('http') ? url : `http://${url}`
+}
+</script>
+
 <template>
   <v-carousel
     v-if="data && data.length"
     v-model="current"
     :hide-delimiters="true"
-    :cycle="config.interval > 0"
-    :height="windowHeight"
-    :interval="config.interval > 0 ? config.interval*1000 : 1000"
+    :cycle="cycle"
+    :height="carouselHeight"
+    :interval="interval"
   >
     <v-carousel-item
-      v-for="item,i of data"
+      v-for="(item, i) of data"
       :key="i"
-      :eager="eager(current, i)"
+      :eager="eager(i)"
     >
       <v-img
         :src="item._thumbnail"
         height="100%"
+        cover
       >
         <v-overlay
           v-if="labelField || webPageField"
-          :style="`height:${overlayHeight}px;top:${windowHeight-overlayHeight}px`"
+          :style="`height:${overlayHeight}px;top:${carouselHeight - overlayHeight}px`"
         >
           <v-row
-            class="white--text"
+            class="text-white"
             align="center"
-            :style="`width:${windowWidth}px`"
+            :style="`width:${carouselWidth}px`"
           >
             <v-col
               v-if="labelField"
-              :class="`text-${($vuetify.breakpoint.xs || !webPageField) ? 'center' : 'right'} px-6 py-1`"
+              :class="`text-${(display.xs.value || !webPageField) ? 'center' : 'right'} px-6 py-1`"
             >
-              <h4
-                :class="typography[$vuetify.breakpoint.name]"
-              >
+              <h4 :class="typography[display.name.value]">
                 {{ item[labelField.key] }}
               </h4>
             </v-col>
@@ -44,11 +90,10 @@
               class="text-center px-6 py-1"
             >
               <v-btn
-                :href="(!item[webPageField.key].includes('http') ? 'http://' : '') + item[webPageField.key]"
-                :x-large="$vuetify.breakpoint.mdAndUp"
-                :large="$vuetify.breakpoint.sm"
-                :target="config.linksTarget || '_top'"
-                outlined
+                :href="normalizeUrl(String(item[webPageField.key]))"
+                :size="display.mdAndUp.value ? 'x-large' : (display.sm.value ? 'large' : 'default')"
+                :target="config?.linksTarget || '_top'"
+                variant="outlined"
               >
                 <h4>En savoir plus</h4>
               </v-btn>
@@ -59,42 +104,3 @@
     </v-carousel-item>
   </v-carousel>
 </template>
-
-<script>
-  import { mapState, mapGetters, mapActions } from 'vuex'
-
-  export default {
-    name: 'HelloWorld',
-    data: () => ({
-      current: 0,
-      typography: {
-        xs: '',
-        sm: 'text-h6',
-        md: 'text-h5',
-        lg: 'text-h4',
-        xl: 'text-h4',
-      },
-    }),
-    computed: {
-      ...mapState(['data']),
-      ...mapGetters(['config', 'labelField', 'webPageField']),
-      overlayHeight () {
-        if (this.$vuetify.breakpoint.xs) return 120
-        return 100
-      },
-    },
-    created () {
-      this.$store.dispatch('init', { windowWidth: this.windowWidth, windowHeight: this.windowHeight })
-    },
-    methods: {
-      ...mapActions(['fetchData']),
-      // try to preload items next to current item
-      eager (current, i) {
-        if (i === (current - 1 + this.data.length) % this.data.length) return true
-        if (i === (current + 1) % this.data.length) return true
-        if (i === (current + 2) % this.data.length) return true
-        return false
-      },
-    },
-  }
-</script>

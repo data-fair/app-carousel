@@ -3,20 +3,209 @@
   "allOf": [
     {
       "title": "Source de données",
-      "required": [ "datasets" ],
+      "required": [
+        "datasets"
+      ],
       "properties": {
         "datasets": {
-          "$ref": "#/definitions/datasets"
+          "type": "array",
+          "title": "Jeu de données",
+          "description": "Ce jeu de données contient les images du diaporama",
+          "layout": {
+            "getItems": {
+              "url": "api/v1/datasets?status=finalized&q={q}&select=id,title&owner={context.owner.type}:{context.owner.id}&concepts=http://schema.org/image&sort=title:1",
+              "itemKey": "data.href",
+              "itemTitle": "data.title",
+              "itemsResults": "data.results"
+            },
+            "messages": {
+              "addItem": "Sélectionner un jeu de données"
+            }
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          }
         },
         "staticFilters": {
-          "$ref": "#/definitions/filters"
+          "title": "Filtres prédéfinis",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "discriminator": {
+              "propertyName": "type"
+            },
+            "default": {
+              "type": "in"
+            },
+            "oneOf": [
+              {
+                "title": "Restreindre à des valeurs",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "field",
+                  "values"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "in"
+                  },
+                  "field": {
+                    "type": "object",
+                    "title": "Colonne de filtre",
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                        "itemKey": "data.key",
+                        "itemTitle": "data.label"
+                      }
+                    },
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "values": {
+                    "type": "array",
+                    "title": "Valeurs",
+                    "items": {
+                      "type": "string"
+                    },
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                        "itemKey": "data",
+                        "itemTitle": "data"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "title": "Restreindre à un interval de valeurs",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "field"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "interval"
+                  },
+                  "field": {
+                    "type": "object",
+                    "title": "Colonne de filtre",
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                        "itemKey": "data.key",
+                        "itemTitle": "data.label"
+                      }
+                    },
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "minValue": {
+                    "type": "string",
+                    "title": "Valeur min",
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                        "itemKey": "data",
+                        "itemTitle": "data"
+                      }
+                    }
+                  },
+                  "maxValue": {
+                    "type": "string",
+                    "title": "Valeur max",
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                        "itemKey": "data",
+                        "itemTitle": "data"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "title": "Exclure des valeurs",
+                "additionalProperties": false,
+                "required": [
+                  "type",
+                  "field",
+                  "values"
+                ],
+                "properties": {
+                  "type": {
+                    "const": "out"
+                  },
+                  "field": {
+                    "type": "object",
+                    "title": "Colonne de filtre",
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                        "itemKey": "data.key",
+                        "itemTitle": "data.label"
+                      }
+                    },
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "values": {
+                    "type": "array",
+                    "title": "Valeurs à exclure",
+                    "items": {
+                      "type": "string"
+                    },
+                    "layout": {
+                      "getItems": {
+                        "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                        "itemKey": "data",
+                        "itemTitle": "data"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
         }
       }
     },
     {
       "title": "Présentation",
       "properties": {
-        "interval":{
+        "interval": {
           "type": "integer",
           "title": "Durée d'affichage des images (sec)",
           "description": "Mettre à 0 pour désactiver la rotation automatique",
@@ -27,14 +216,17 @@
         "linksTarget": {
           "type": "string",
           "title": "Mode d'ouverture des liens",
-          "oneOf": [{
-            "const": "_top",
-            "title": "Dans le même onglet"
-          },{
-            "const": "_blank",
-            "title": "Dans un nouvel onglet"
-          }],
-          "default": "_top"
+          "default": "_top",
+          "oneOf": [
+            {
+              "const": "_top",
+              "title": "Dans le même onglet"
+            },
+            {
+              "const": "_blank",
+              "title": "Dans un nouvel onglet"
+            }
+          ]
         },
         "distactivateLinks": {
           "type": "boolean",
@@ -52,44 +244,23 @@
     }
   ],
   "definitions": {
-    "datasets": {
-      "type": "array",
-      "items": [
-        {
-          "title": "Jeu de données",
-          "description": "Ce jeu de données contient les données source de la visualisation",
-          "type": "object",
-          "x-fromUrl": "api/v1/datasets?status=finalized&q={q}&select=id,title&owner={context.owner.type}:{context.owner.id}&concepts=http://schema.org/image",
-          "x-itemsProp": "results",
-          "x-itemTitle": "title",
-          "x-itemKey": "href",
-          "properties": {
-            "href": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "id": {
-              "type": "string"
-            }
-          }
-        }
-      ]
-    },
     "filters": {
       "title": "Filtres prédéfinis",
       "type": "array",
       "items": {
         "type": "object",
+        "discriminator": {
+          "propertyName": "type"
+        },
         "default": {
           "type": "in"
         },
-        "x-itemKey": "type",
         "oneOf": [
           {
             "title": "Restreindre à des valeurs",
+            "additionalProperties": false,
             "required": [
+              "type",
               "field",
               "values"
             ],
@@ -98,7 +269,23 @@
                 "const": "in"
               },
               "field": {
-                "$ref": "#/definitions/filterField"
+                "type": "object",
+                "title": "Colonne de filtre",
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                    "itemKey": "data.key",
+                    "itemTitle": "data.label"
+                  }
+                },
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
               },
               "values": {
                 "type": "array",
@@ -106,13 +293,21 @@
                 "items": {
                   "type": "string"
                 },
-                "x-fromUrl": "{datasets.0.href}/values/{parent.value.field.key}?q={q}&q_mode=complete&size=100&stringify=true"
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
               }
             }
           },
           {
             "title": "Restreindre à un interval de valeurs",
+            "additionalProperties": false,
             "required": [
+              "type",
               "field"
             ],
             "properties": {
@@ -120,23 +315,53 @@
                 "const": "interval"
               },
               "field": {
-                "$ref": "#/definitions/filterField"
+                "type": "object",
+                "title": "Colonne de filtre",
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                    "itemKey": "data.key",
+                    "itemTitle": "data.label"
+                  }
+                },
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
               },
               "minValue": {
                 "type": "string",
                 "title": "Valeur min",
-                "x-fromUrl": "{datasets.0.href}/values/{parent.value.field.key}?q={q}&q_mode=complete&size=100&stringify=true"
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
               },
               "maxValue": {
                 "type": "string",
                 "title": "Valeur max",
-                "x-fromUrl": "{datasets.0.href}/values/{parent.value.field.key}?q={q}&q_mode=complete&size=100&stringify=true"
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
               }
             }
           },
           {
             "title": "Exclure des valeurs",
+            "additionalProperties": false,
             "required": [
+              "type",
               "field",
               "values"
             ],
@@ -145,7 +370,23 @@
                 "const": "out"
               },
               "field": {
-                "$ref": "#/definitions/filterField"
+                "type": "object",
+                "title": "Colonne de filtre",
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
+                    "itemKey": "data.key",
+                    "itemTitle": "data.label"
+                  }
+                },
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                }
               },
               "values": {
                 "type": "array",
@@ -153,7 +394,13 @@
                 "items": {
                   "type": "string"
                 },
-                "x-fromUrl": "{datasets.0.href}/values/{parent.value.field.key}?q={q}&q_mode=complete&size=100&stringify=true"
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
               }
             }
           }
@@ -163,9 +410,22 @@
     "filterField": {
       "type": "object",
       "title": "Colonne de filtre",
-      "x-fromUrl": "{datasets.0.href}/schema?calculated=false",
-      "x-itemTitle": "label",
-      "x-itemKey": "key"
+      "layout": {
+        "getItems": {
+          "url": "${rootData.datasets[0].href}/schema?calculated=false",
+          "itemKey": "data.key",
+          "itemTitle": "data.label"
+        }
+      },
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      }
     }
-  }
+  },
+  "$id": "config-resolved"
 }

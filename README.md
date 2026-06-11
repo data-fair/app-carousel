@@ -1,64 +1,96 @@
-# Data Fair - Diaporama
+# DataFair — Diaporama
 
-*Cette application permet de créer des diaporamas déroulants*
+*Cette application permet de créer des diaporamas déroulants à partir d'un jeu de données DataFair.*
 
-An application for [DataFair](https://koumoul-dev.github.io/data-fair/). It is hosted [by npm and the jsdelivr CDN](https://cdn.jsdelivr.net/npm/app-carousel).
+An application for [DataFair](https://koumoul-dev.github.io/data-fair/). It is hosted [by npm and the jsdelivr CDN](https://cdn.jsdelivr.net/npm/@data-fair/app-carousel).
 
-## Context
+## Concept
 
-[DataFair](https://koumoul-dev.github.io/data-fair/) is an Open Source Web software developped by [Koumoul](https://koumoul.com) for publishing data online with complete search and aggregation capabilities, metadata management, mapping functionalities, access control, etc. It can be used as a back office for Open Data platforms, data visualizations , custom search engines and other applications.
+L'application exploite les concepts DataFair suivants pour détecter automatiquement les colonnes du jeu de données :
 
-DataFair comes with functionalities to facilitate the development, deployment and configuration of small data consuming applications. This project is an example of such an application.
+- `http://schema.org/image` — colonne contenant l'URL de l'image (obligatoire)
+- `http://www.w3.org/2000/01/rdf-schema#label` — colonne du titre affiché sur l'overlay
+- `https://schema.org/WebPage` — colonne contenant l'URL du lien "En savoir plus"
+
+## Configuration
+
+Le fichier `public/config-schema.json` (généré depuis `src/config/schema.json`) décrit la configuration acceptée par l'application. Il est généré via :
+
+```bash
+npm run build-types
+```
+
+Deux onglets :
+
+1. **Source de données** — choix du jeu de données + filtres prédéfinis (`staticFilters` `in` / `interval` / `out`)
+2. **Présentation** — intervalle de rotation, cible des liens, masquage titre/liens
 
 ## Technical stack
 
-This technical stack is just an example of what can be used to build an application for DataFair. It is a quite rich stack for a state of the art development environment. For an application with a more minimalist stack, you can see [data-fair-minimal](https://github.com/koumoul-dev/data-fair-minimal).
-
-  - [vuejs](https://vuejs.org/): our favorite framework for client-side code
-  - [vuetify](https://vuetifyjs.com/en/): a material design UI framework for vuejs
-
-## Initialization
-
-This project was created using the [ data-fair-app vue cli plugin](https://github.com/data-fair/vue-cli-plugin-app).
+- **Vue 3.5+** (Composition API, `<script setup lang="ts">`)
+- **Vuetify 4** (`vite-plugin-vuetify`)
+- **Vite 8**
+- **TypeScript** strict
+- `@data-fair/lib-vue`, `@data-fair/lib-vuetify`, `@data-fair/lib-utils`
+- `@vueuse/core` (`useWindowSize`)
+- Dev server : `df-dev-server` + Zellij layout `.zellij.kdl`
 
 ## Development Setup
 
-Setup dependencies:
+Installer les dépendances :
 
-    npm install
+```bash
+npm install
+```
 
-Configure the Data Fair instance you are accessing by creating a .env file with the following variables (if you skip this step you will be using the public datasets from the Koumoul organization on https://koumoul.com/s/data-fair):
+Configurer l'instance DataFair visée via `.dev-config.json` (déjà présent à la racine) ou un fichier `.env` :
 
-    DATAFAIR_URL=https://koumoul.com/s/data-fair
-    DATAFAIR_OWNER_TYPE=organization or user
-    DATAFAIR_OWNER_ID=...
-    DATAFAIR_API_KEY= leave empty to use only public datasets
+```
+DATAFAIR_URL=https://koumoul.com/s/data-fair
+DATAFAIR_OWNER_TYPE=organization or user
+DATAFAIR_OWNER_ID=...
+DATAFAIR_API_KEY= leave empty to use only public datasets
+```
 
-Run the development server and serve the application with hot reload:
+Lancer le dev server avec hot reload (Vite + `df-dev-server` dans un layout Zellij) :
 
-    npm run dev
+```bash
+npm run dev
+```
 
-## public/config-schema.json
+Ou lancer chaque partie séparément :
 
-A JSON schema file that describes the expected configuration. DataFair expects this file to be found at the precise path %MY APP%/config-schema.json.
+```bash
+npm run dev-server   # df-dev-server (reverse proxy DataFair)
+npm run dev-app      # Vite (HMR)
+```
 
-The content of this JSON schema is extended with some annotations used by DataFair to automatically create a configuration form. The details of these annotations can be found in demo of the library we maintain to create these forms:  [vjsf](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/).
+## Commandes
+
+```bash
+npm run dev          # zellij layout : vite + df-dev-server
+npm run dev-app      # vite only
+npm run dev-server   # df-dev-server only
+npm run build        # build CDN (PUBLIC_URL=jsdelivr)
+npm run build-preview
+npm run build-types  # génère src/config/.type/ et public/config-schema.json
+npm run type-check   # vue-tsc --noEmit
+npm run lint         # eslint --fix
+```
 
 ## Deployment
 
-Simply publish the project on the global npm registry (you need to be member of the owner organization).
+Publier sur le registre npm global (membre de l'organisation owner) :
 
-    npm version PATCH|MINOR|MAJOR
-    npm publish
-    git push && git push --tags
+```bash
+npm version patch|minor|major
+npm publish
+git push && git push --tags
+```
 
-If the release is a bug fix and you don't want to wait 24h (the cache delay of jsdelivr), you can purge the cache for the index.html file of the minor version in the CDN:
+Pour une version de test pré-publiée :
 
-    curl https://purge.jsdelivr.net/npm/app-carousel@MINOR/dist/index.html
-
-To publish a version for testing purposes you can tag it as a pre-release and publish it with the tag "staging".
-
-    npm version prerelease --preid=staging
-    npm publish --tag staging
-    curl https://purge.jsdelivr.net/npm/app-carousel@staging/dist/index.html
-    git push && git push --tags
+```bash
+npm version prerelease --preid=staging
+npm publish --tag staging
+```

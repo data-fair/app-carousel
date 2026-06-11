@@ -1,0 +1,174 @@
+{
+  "type": "object",
+  "x-exports": ["types", "resolvedSchemaJson"],
+  "allOf": [
+    {
+      "title": "Source de données",
+      "required": ["datasets"],
+      "properties": {
+        "datasets": {
+          "type": "array",
+          "title": "Jeu de données",
+          "description": "Ce jeu de données contient les images du diaporama",
+          "layout": {
+            "getItems": {
+              "url": "api/v1/datasets?status=finalized&q={q}&select=id,title&owner={context.owner.type}:{context.owner.id}&concepts=http://schema.org/image&sort=title:1",
+              "itemKey": "data.href",
+              "itemTitle": "data.title",
+              "itemsResults": "data.results"
+            },
+            "messages": {
+              "addItem": "Sélectionner un jeu de données"
+            }
+          },
+          "items": {
+            "type": "object",
+            "properties": {
+              "href": { "type": "string" },
+              "title": { "type": "string" },
+              "id": { "type": "string" }
+            }
+          }
+        },
+        "staticFilters": {
+          "$ref": "#/definitions/filters"
+        }
+      }
+    },
+    {
+      "title": "Présentation",
+      "properties": {
+        "interval": {
+          "type": "integer",
+          "title": "Durée d'affichage des images (sec)",
+          "description": "Mettre à 0 pour désactiver la rotation automatique",
+          "default": 6,
+          "minimum": 0,
+          "maximum": 30
+        },
+        "linksTarget": {
+          "type": "string",
+          "title": "Mode d'ouverture des liens",
+          "default": "_top",
+          "oneOf": [
+            { "const": "_top", "title": "Dans le même onglet" },
+            { "const": "_blank", "title": "Dans un nouvel onglet" }
+          ]
+        },
+        "distactivateLinks": {
+          "type": "boolean",
+          "title": "Désactiver les liens",
+          "description": "Un bouton 'en savoir plus' est automatiquement ajouté quand la source de données a une colonne avec le concept 'page web'. Cette option permet de le cacher.",
+          "default": false
+        },
+        "hideTitle": {
+          "type": "boolean",
+          "title": "Cacher les titres",
+          "description": "Un texte sur fond sombre est automatiquement ajouté quand la source de données a une colonne avec le concept 'libellé'. Cette option permet de le cacher.",
+          "default": false
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "filters": {
+      "title": "Filtres prédéfinis",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "discriminator": { "propertyName": "type" },
+        "default": { "type": "in" },
+        "oneOf": [
+          {
+            "title": "Restreindre à des valeurs",
+            "additionalProperties": false,
+            "required": ["type", "field", "values"],
+            "properties": {
+              "type": { "const": "in" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "values": {
+                "type": "array",
+                "title": "Valeurs",
+                "items": { "type": "string" },
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Restreindre à un interval de valeurs",
+            "additionalProperties": false,
+            "required": ["type", "field"],
+            "properties": {
+              "type": { "const": "interval" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "minValue": {
+                "type": "string",
+                "title": "Valeur min",
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
+              },
+              "maxValue": {
+                "type": "string",
+                "title": "Valeur max",
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Exclure des valeurs",
+            "additionalProperties": false,
+            "required": ["type", "field", "values"],
+            "properties": {
+              "type": { "const": "out" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "values": {
+                "type": "array",
+                "title": "Valeurs à exclure",
+                "items": { "type": "string" },
+                "layout": {
+                  "getItems": {
+                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data",
+                    "itemTitle": "data"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "filterField": {
+      "type": "object",
+      "title": "Colonne de filtre",
+      "layout": {
+        "getItems": {
+          "url": "${rootData.datasets[0].href}/schema?calculated=false",
+          "itemKey": "data.key",
+          "itemTitle": "data.label"
+        }
+      },
+      "properties": {
+        "key": { "type": "string" },
+        "label": { "type": "string" }
+      }
+    }
+  }
+}
