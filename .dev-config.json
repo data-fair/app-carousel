@@ -1,14 +1,688 @@
 {
-  "staticFilters": [],
+  "interval": 0,
+  "linksTarget": "_top",
+  "distactivateLinks": false,
+  "hideTitle": false,
   "datasets": [
     {
-      "href": "http://localhost:5888/data-fair/api/v1/datasets/jep-2019-france",
-      "title": "Journées européennes du patrimoine en France - 2019 ",
-      "id": "jep-2019-france"
+      "title": "Événements Publics Bretagne - OpenAgenda",
+      "schema": [
+        {
+          "key": "identifiant",
+          "x-originalName": "Identifiant",
+          "type": "integer",
+          "x-cardinality": 36735,
+          "description": ""
+        },
+        {
+          "key": "slug",
+          "x-originalName": "Slug",
+          "type": "string",
+          "x-cardinality": 36797,
+          "description": ""
+        },
+        {
+          "key": "url_canonique",
+          "x-originalName": "URL canonique",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": "",
+          "x-refersTo": "https://schema.org/WebPage",
+          "x-concept": {
+            "id": "webPage",
+            "title": "Page Web",
+            "primary": true
+          }
+        },
+        {
+          "key": "titre",
+          "x-originalName": "Titre",
+          "type": "string",
+          "x-cardinality": 29260,
+          "description": "",
+          "x-refersTo": "http://www.w3.org/2000/01/rdf-schema#label",
+          "x-concept": {
+            "id": "label",
+            "title": "Libellé",
+            "primary": true
+          }
+        },
+        {
+          "key": "description",
+          "x-originalName": "Description",
+          "type": "string",
+          "x-cardinality": 24775,
+          "description": ""
+        },
+        {
+          "key": "description_longue",
+          "x-originalName": "Description longue",
+          "type": "string",
+          "x-display": "markdown",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": "",
+          "x-refersTo": "http://schema.org/description",
+          "x-concept": {
+            "id": "description",
+            "title": "Description",
+            "primary": true
+          }
+        },
+        {
+          "key": "detail_des_conditions",
+          "x-originalName": "Détail des conditions",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "mots_cles",
+          "x-originalName": "Mots clés",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "insensitive": false
+          },
+          "description": "",
+          "x-transform": {
+            "expr": "",
+            "examples": [
+              ""
+            ]
+          },
+          "separator": ", ",
+          "x-cardinality": 17107
+        },
+        {
+          "key": "image",
+          "x-originalName": "Image",
+          "type": "string",
+          "x-cardinality": 30335,
+          "description": "",
+          "x-refersTo": "http://schema.org/image",
+          "x-concept": {
+            "id": "image",
+            "title": "Image",
+            "primary": true
+          }
+        },
+        {
+          "key": "credits_image",
+          "x-originalName": "Crédits image",
+          "type": "string",
+          "x-cardinality": 7546,
+          "description": ""
+        },
+        {
+          "key": "apercu",
+          "x-originalName": "Aperçu",
+          "type": "string",
+          "x-cardinality": 30721,
+          "description": ""
+        },
+        {
+          "key": "image_source",
+          "x-originalName": "Image source",
+          "type": "string",
+          "x-cardinality": 30792,
+          "description": ""
+        },
+        {
+          "key": "derniere_mise_a_jour",
+          "x-originalName": "Dernière mise à jour",
+          "type": "string",
+          "format": "date-time",
+          "x-cardinality": 32599,
+          "description": ""
+        },
+        {
+          "key": "resume_horaires",
+          "x-originalName": "Résumé horaires",
+          "type": "string",
+          "x-cardinality": 21207,
+          "description": ""
+        },
+        {
+          "key": "premiere_date_debut",
+          "x-originalName": "Première date - Début",
+          "type": "string",
+          "format": "date-time",
+          "x-cardinality": 19065,
+          "description": "",
+          "x-refersTo": "https://schema.org/startDate",
+          "x-concept": {
+            "id": "startDate",
+            "title": "Date de début",
+            "primary": true
+          }
+        },
+        {
+          "key": "premiere_date_fin",
+          "x-originalName": "Première date - Fin",
+          "type": "string",
+          "format": "date-time",
+          "x-cardinality": 19716,
+          "description": "",
+          "x-refersTo": "https://schema.org/endDate",
+          "x-concept": {
+            "id": "endDate",
+            "title": "Date de fin",
+            "primary": true
+          }
+        },
+        {
+          "key": "derniere_date_debut",
+          "x-originalName": "Dernière date - Début",
+          "type": "string",
+          "format": "date-time",
+          "x-cardinality": 18658,
+          "description": ""
+        },
+        {
+          "key": "derniere_date_fin",
+          "x-originalName": "Dernière date - Fin",
+          "type": "string",
+          "format": "date-time",
+          "x-cardinality": 19816,
+          "description": ""
+        },
+        {
+          "key": "horaires_detailles",
+          "x-originalName": "Horaires détaillés",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "code_daccessibilite",
+          "x-originalName": "Code d'accessibilité",
+          "type": "string",
+          "x-cardinality": 141,
+          "description": ""
+        },
+        {
+          "key": "accessibilite",
+          "x-originalName": "Accessibilité",
+          "type": "string",
+          "x-cardinality": 141,
+          "description": ""
+        },
+        {
+          "key": "identifiant_du_lieu",
+          "x-originalName": "Identifiant du lieu",
+          "type": "integer",
+          "x-cardinality": 13752,
+          "description": ""
+        },
+        {
+          "key": "coordonnees_geographiques",
+          "x-originalName": "Coordonnées géographiques",
+          "type": "string",
+          "x-cardinality": 10369,
+          "description": "",
+          "x-refersTo": "http://www.w3.org/2003/01/geo/wgs84_pos#lat_long",
+          "x-concept": {
+            "id": "latLon",
+            "title": "Latitude / Longitude",
+            "primary": true
+          }
+        },
+        {
+          "key": "nom_du_lieu",
+          "x-originalName": "Nom du lieu",
+          "type": "string",
+          "x-cardinality": 11223,
+          "description": ""
+        },
+        {
+          "key": "adresse",
+          "x-originalName": "Adresse",
+          "type": "string",
+          "x-cardinality": 12152,
+          "description": "",
+          "x-refersTo": "http://schema.org/address",
+          "x-concept": {
+            "id": "address",
+            "title": "Adresse",
+            "primary": true
+          }
+        },
+        {
+          "key": "arrondissement",
+          "x-originalName": "Arrondissement",
+          "type": "string",
+          "x-cardinality": 513,
+          "description": ""
+        },
+        {
+          "key": "code_insee",
+          "x-originalName": "Code INSEE",
+          "type": "string",
+          "x-cardinality": 1005,
+          "description": "",
+          "x-refersTo": "http://rdf.insee.fr/def/geo#codeCommune",
+          "x-concept": {
+            "id": "codeCommune",
+            "title": "Code commune",
+            "primary": true
+          }
+        },
+        {
+          "key": "code_postal",
+          "x-originalName": "Code postal",
+          "type": "string",
+          "x-cardinality": 383,
+          "description": "",
+          "x-refersTo": "http://schema.org/postalCode",
+          "x-concept": {
+            "id": "postalCode",
+            "title": "Code postal",
+            "primary": true
+          }
+        },
+        {
+          "key": "ville",
+          "x-originalName": "Ville",
+          "type": "string",
+          "x-cardinality": 1215,
+          "description": "",
+          "x-refersTo": "http://schema.org/City",
+          "x-concept": {
+            "id": "city",
+            "title": "Commune",
+            "primary": true
+          }
+        },
+        {
+          "key": "departement",
+          "x-originalName": "Département",
+          "type": "string",
+          "x-cardinality": 25,
+          "description": "",
+          "enum": [
+            "Ille-et-Vilaine",
+            "Finistère",
+            "Côtes-d'Armor",
+            "Morbihan",
+            "Côtes d'Armor",
+            "Cotes-d'Armor",
+            "Ille et vilaine",
+            "29400",
+            "Gers",
+            "Bretagne",
+            "Ille et Vilaine",
+            "ille-et-vilaine",
+            "Côte-d'Or",
+            "Ille-et-vilaine",
+            "Vendée",
+            "56570",
+            "Ambon",
+            "Gironde",
+            "Haute-Bretagne",
+            "Isère",
+            "Nîmes",
+            "Pas-de-Calais",
+            "Réunion",
+            "cotes d’armor",
+            "ille et vilaine"
+          ]
+        },
+        {
+          "key": "region",
+          "x-originalName": "Région",
+          "type": "string",
+          "x-cardinality": 1,
+          "description": "",
+          "enum": [
+            "Bretagne"
+          ]
+        },
+        {
+          "key": "pays",
+          "x-originalName": "Pays",
+          "type": "string",
+          "x-cardinality": 5,
+          "description": "",
+          "enum": [
+            "FR",
+            "fr",
+            "US",
+            "AU",
+            "GF"
+          ]
+        },
+        {
+          "key": "image_du_lieu",
+          "x-originalName": "Image du lieu",
+          "type": "string",
+          "x-cardinality": 2594,
+          "description": ""
+        },
+        {
+          "key": "credits_de_limage_du_lieu",
+          "x-originalName": "Crédits de l'image du lieu",
+          "type": "string",
+          "x-cardinality": 1380,
+          "description": ""
+        },
+        {
+          "key": "telephone_du_lieu",
+          "x-originalName": "Téléphone du lieu",
+          "type": "string",
+          "x-cardinality": 1443,
+          "description": ""
+        },
+        {
+          "key": "site_web_du_lieu",
+          "x-originalName": "Site web du lieu",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "liens_du_lieu",
+          "x-originalName": "Liens du lieu",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "tags_du_lieu",
+          "x-originalName": "Tags du lieu",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "description_du_lieu",
+          "x-originalName": "Description du lieu",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "acces_itineraire",
+          "x-originalName": "Accès / Itinéraire",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "evenement_physique_ou_en_ligne",
+          "x-originalName": "Événement physique ou en ligne",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "lien_dacces_en_ligne",
+          "x-originalName": "Lien d'accès en ligne",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "etat_de_levenement",
+          "x-originalName": "État de l'événement",
+          "type": "string",
+          "x-cardinality": 13,
+          "description": "",
+          "enum": [
+            "{\"id\": 1, \"label\": {\"fr\": \"Programm\\u00e9\", \"en\": \"Scheduled\", \"io\": \"crwdns16100:0crwdne16100:0\"}}",
+            "{\"id\": 1, \"label\": {\"fr\": \"Programm\\u00e9\", \"en\": \"Scheduled\", \"io\": \"crwdns16100:0crwdne16100:0\", \"es\": \"Programado\", \"oc\": \"Programat\"}}",
+            "{\"id\": 5, \"label\": {\"fr\": \"Complet\", \"en\": \"Full\", \"io\": \"crwdns16448:0crwdne16448:0\", \"es\": \"Completo\", \"oc\": \"Compl\\u00e8t\"}}",
+            "{\"id\": 1, \"label\": {\"fr\": \"Programm\\u00e9\", \"en\": \"Scheduled\", \"io\": \"crwdns16100:0crwdne16100:0\", \"es\": \"Programado\"}}",
+            "{\"id\": 5, \"label\": {\"fr\": \"Complet\", \"en\": \"Full\", \"io\": \"crwdns16448:0crwdne16448:0\"}}",
+            "{\"id\": 6, \"label\": {\"fr\": \"Annul\\u00e9\", \"en\": \"Canceled\", \"it\": \"Cancellato\", \"io\": \"crwdns16106:0crwdne16106:0\"}}",
+            "{\"id\": 6, \"label\": {\"fr\": \"Annul\\u00e9\", \"en\": \"Canceled\", \"it\": \"Cancellato\", \"io\": \"crwdns16106:0crwdne16106:0\", \"es\": \"Cancelado\", \"oc\": \"Anullat\"}}",
+            "{\"id\": 3, \"label\": {\"fr\": \"D\\u00e9plac\\u00e9 en ligne\", \"en\": \"Moved online\", \"it\": \"Oramai in linea\", \"oc\": \"Transferit en linha\", \"io\": \"crwdns16104:0crwdne16104:0\"}}",
+            "{\"id\": 4, \"label\": {\"fr\": \"Report\\u00e9\", \"en\": \"Postponed\", \"it\": \"Riprogrammato\", \"io\": \"crwdns16108:0crwdne16108:0\", \"oc\": \"Remandat\"}}",
+            "{\"id\": 2, \"label\": {\"fr\": \"Re-programm\\u00e9\", \"en\": \"Re-scheduled\", \"io\": \"crwdns16102:0crwdne16102:0\"}}",
+            "{\"id\": 4, \"label\": {\"fr\": \"Report\\u00e9\", \"en\": \"Postponed\", \"it\": \"Riprogrammato\", \"io\": \"crwdns16108:0crwdne16108:0\", \"oc\": \"Remandat\", \"es\": \"Aplazado\"}}",
+            "{\"id\": 4, \"label\": {\"fr\": \"Report\\u00e9\", \"en\": \"Postponed\", \"it\": \"Riprogrammato\", \"io\": \"crwdns16108:0crwdne16108:0\"}}",
+            "{\"id\": 3, \"label\": {\"fr\": \"D\\u00e9plac\\u00e9 en ligne\", \"en\": \"Moved online\", \"it\": \"Oramai online\", \"oc\": \"Transferit en linha\", \"io\": \"crwdns16104:0crwdne16104:0\"}}"
+          ]
+        },
+        {
+          "key": "age_minimum",
+          "x-originalName": "Age minimum",
+          "type": "integer",
+          "x-cardinality": 30,
+          "description": ""
+        },
+        {
+          "key": "age_maximum",
+          "x-originalName": "Age maximum",
+          "type": "integer",
+          "x-cardinality": 74,
+          "description": ""
+        },
+        {
+          "key": "agenda_dorigine_titre",
+          "x-originalName": "Agenda d'origine (titre)",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "agenda_dorigine_uid",
+          "x-originalName": "Agenda d'origine (uid)",
+          "type": "string",
+          "x-cardinality": 679,
+          "description": "",
+          "x-transform": {
+            "expr": "",
+            "examples": [
+              ""
+            ],
+            "type": "string"
+          }
+        },
+        {
+          "key": "nom_du_pays",
+          "x-originalName": "Nom du pays",
+          "type": "string",
+          "x-cardinality": 4,
+          "description": "",
+          "enum": [
+            "France (Métropole)",
+            "Etats-Unis",
+            "Australie",
+            "Guyane Française"
+          ]
+        },
+        {
+          "key": "registration",
+          "x-originalName": "Registration",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "liens_additionnels",
+          "x-originalName": "Liens additionnels",
+          "type": "string",
+          "x-display": "textarea",
+          "x-capabilities": {
+            "index": false,
+            "values": false,
+            "insensitive": false
+          },
+          "description": ""
+        },
+        {
+          "key": "_infos_commune.code_departement",
+          "x-originalName": "_infos_commune.code_departement",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Code département",
+          "description": "Code du département",
+          "type": "string",
+          "x-refersTo": "http://rdf.insee.fr/def/geo#codeDepartement",
+          "x-capabilities": {
+            "textStandard": false,
+            "insensitive": false,
+            "text": false
+          }
+        },
+        {
+          "key": "_infos_commune.nom_departement",
+          "x-originalName": "_infos_commune.nom_departement",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Nom département",
+          "description": "Nom du département",
+          "type": "string",
+          "x-refersTo": "http://rdf.insee.fr/def/geo#Departement"
+        },
+        {
+          "key": "_infos_commune.code_epci",
+          "x-originalName": "_infos_commune.code_epci",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Code EPCI",
+          "description": "Code de l'établissement public de coopération intercommunale",
+          "type": "string",
+          "x-refersTo": "http://rdf.insee.fr/def/geo#EtablissementPublicDeCooperationIntercommunale",
+          "x-capabilities": {
+            "textStandard": false,
+            "insensitive": false,
+            "text": false
+          }
+        },
+        {
+          "key": "_infos_commune.nom_epci",
+          "x-originalName": "_infos_commune.nom_epci",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Nom EPCI",
+          "description": "Nom de l'établissement public de coopération intercommunale",
+          "type": "string"
+        },
+        {
+          "key": "_infos_commune.code_region",
+          "x-originalName": "_infos_commune.code_region",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Code région",
+          "description": "Code de la région",
+          "type": "string",
+          "x-refersTo": "http://rdf.insee.fr/def/geo#codeRegion",
+          "x-capabilities": {
+            "textStandard": false,
+            "insensitive": false,
+            "text": false
+          }
+        },
+        {
+          "key": "_infos_commune.nom_region",
+          "x-originalName": "_infos_commune.nom_region",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Nom région",
+          "description": "Nom de la région",
+          "type": "string",
+          "x-refersTo": "https://schema.org/addressRegion"
+        },
+        {
+          "key": "_infos_commune._error",
+          "type": "string",
+          "x-originalName": "_error",
+          "x-extension": "dataset:communes-de-france/masterData_bulkSearch_infos-commune",
+          "title": "Erreur de récupération de données de référence",
+          "description": "Une erreur lors de la récupération des informations depuis un service distant",
+          "x-calculated": true
+        },
+        {
+          "x-calculated": true,
+          "key": "_geopoint",
+          "type": "string",
+          "title": "Coordonnée géographique",
+          "description": "Centroïde au format \"lat,lon\""
+        },
+        {
+          "x-calculated": true,
+          "key": "_id",
+          "type": "string",
+          "format": "uri-reference",
+          "title": "Identifiant",
+          "description": "Identifiant unique parmi toutes les lignes du jeu de données"
+        },
+        {
+          "x-calculated": true,
+          "key": "_i",
+          "type": "integer",
+          "title": "Numéro de ligne",
+          "description": "Indice de la ligne dans le fichier d'origine"
+        },
+        {
+          "x-calculated": true,
+          "key": "_rand",
+          "type": "integer",
+          "title": "Nombre aléatoire",
+          "description": "Un nombre aléatoire associé à la ligne qui permet d'obtenir un tri aléatoire par exemple"
+        }
+      ],
+      "id": "32u9b8hjik1nctz0sfwokznp",
+      "href": "http://localhost:5888/data-fair/api/v1/datasets/32u9b8hjik1nctz0sfwokznp"
     }
-  ],
-  "hideTitle": false,
-  "distactivateLinks": false,
-  "interval": 30,
-  "linksTarget": "_top"
+  ]
 }

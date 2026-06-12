@@ -28,6 +28,7 @@
     "@vueuse/core": "^14.2.1",
     "dayjs": "^1.11.20",
     "vue": "^3.5.33",
+    "vue-i18n": "^11.0.0",
     "vuetify": "^4.0.6"
   },
   "devDependencies": {

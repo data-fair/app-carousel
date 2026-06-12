@@ -20,7 +20,7 @@ const interval = computed(() => {
   return v > 0 ? v * 1000 : 1000
 })
 
-const overlayHeight = computed(() => display.xs.value ? 120 : 100)
+const overlayHeight = computed(() => display.xs.value ? 140 : 120)
 
 const typography: Record<string, string> = {
   xs: '',
@@ -31,6 +31,10 @@ const typography: Record<string, string> = {
 }
 
 const carouselWidth = computed(() => width.value || 1280)
+
+const carouselAspectRatio = computed(() =>
+  (carouselWidth.value || 1280) / (carouselHeight.value || 800)
+)
 
 function eager (i: number): boolean {
   if (!data.value.length) return false
@@ -61,16 +65,20 @@ function normalizeUrl (url: string) {
     >
       <v-img
         :src="item._thumbnail"
+        :aspect-ratio="carouselAspectRatio"
+        width="100%"
         height="100%"
         cover
       >
-        <v-overlay
+        <div
           v-if="labelField || webPageField"
-          :style="`height:${overlayHeight}px;top:${carouselHeight - overlayHeight}px`"
+          class="carousel-overlay"
+          :style="`height:${overlayHeight}px`"
         >
           <v-row
-            class="text-white"
+            class="text-white ma-0 pt-4"
             align="center"
+            no-gutters
             :style="`width:${carouselWidth}px`"
           >
             <v-col
@@ -99,7 +107,7 @@ function normalizeUrl (url: string) {
               </v-btn>
             </v-col>
           </v-row>
-        </v-overlay>
+        </div>
       </v-img>
     </v-carousel-item>
   </v-carousel>

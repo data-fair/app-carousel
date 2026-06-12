@@ -7,6 +7,7 @@ import { createReactiveSearchParams } from '@data-fair/lib-vue/reactive-search-p
 import { createUiNotif } from '@data-fair/lib-vue/ui-notif.js'
 import { createLocaleDayjs } from '@data-fair/lib-vue/locale-dayjs.js'
 import reactiveSearchParams from '@data-fair/lib-vue/reactive-search-params-global.js'
+import { createI18n } from 'vue-i18n'
 import { aliases, mdi } from 'vuetify/iconsets/mdi-svg'
 import App from './App.vue'
 import { createConfig } from '@/composables/config'
@@ -24,6 +25,11 @@ async function init () {
   app.use(createVuetify({
     ...vuetifySessionOptions(session),
     icons: { defaultSet: 'mdi', aliases, sets: { mdi } }
+  }))
+  app.use(createI18n({
+    legacy: false,
+    locale: session.lang.value,
+    fallbackLocale: 'en'
   }))
   app.use(createReactiveSearchParams())
   app.use(createUiNotif())
