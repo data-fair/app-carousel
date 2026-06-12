@@ -1,6 +1,6 @@
 {
   "name": "@data-fair/app-carousel",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "Application de diaporama déroulant pour DataFair",
   "type": "module",
   "files": [
