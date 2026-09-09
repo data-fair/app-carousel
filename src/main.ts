@@ -19,18 +19,20 @@ import { createConfig } from '@/composables/config'
 // Must be at module level, BEFORE createApp().
 ;(window as { vIframeOptions?: { reactiveParams: typeof reactiveSearchParams } }).vIframeOptions = { reactiveParams: reactiveSearchParams }
 
+// createI18n doit être créé au niveau module pour que les composants de
+// @data-fair/lib-vuetify (ui-notif, layout-empty-state, ...) puissent l'utiliser
+// dès leur évaluation.
+const i18n = createI18n({ legacy: false, locale: 'fr', fallbackLocale: 'en' })
+
 async function init () {
   const session = await createSession({ directoryUrl: '/simple-directory', siteInfo: true })
+  i18n.global.locale.value = session.lang.value
   const app = createApp(App)
   app.use(createVuetify({
     ...vuetifySessionOptions(session),
     icons: { defaultSet: 'mdi', aliases, sets: { mdi } }
   }))
-  app.use(createI18n({
-    legacy: false,
-    locale: session.lang.value,
-    fallbackLocale: 'en'
-  }))
+  app.use(i18n)
   app.use(createReactiveSearchParams())
   app.use(createUiNotif())
   app.use(createLocaleDayjs(session.lang.value))
