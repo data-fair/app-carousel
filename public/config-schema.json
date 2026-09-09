@@ -29,7 +29,7 @@
               },
               "layout": {
                 "getItems": {
-                  "url": "api/v1/datasets?status=finalized&q={q}&select=id,title,schema&${context.datasetFilter}&concepts=http://schema.org/image,http://schema.org/DigitalDocument&sort=createdAt:-1&size=100",
+                  "url": "api/v1/datasets?status=finalized&q={q}&select=id,title,schema&${context.datasetFilter}&concepts=http://schema.org/image,http://schema.org/DigitalDocument&size=100",
                   "itemKey": "data.href",
                   "itemTitle": "data.title",
                   "itemsResults": "data.results"
