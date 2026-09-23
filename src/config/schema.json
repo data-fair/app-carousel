@@ -89,9 +89,9 @@
                 "items": { "type": "string" },
                 "layout": {
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                    "itemKey": "data",
-                    "itemTitle": "data"
+                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
                   }
                 }
               }
@@ -109,9 +109,9 @@
                 "title": "Valeur min",
                 "layout": {
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                    "itemKey": "data",
-                    "itemTitle": "data"
+                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=asc&${parent.parent.data.field.key}_gte={q}&stringify=true&size=20",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
                   }
                 }
               },
@@ -120,12 +120,43 @@
                 "title": "Valeur max",
                 "layout": {
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                    "itemKey": "data",
-                    "itemTitle": "data"
+                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=desc&${parent.parent.data.field.key}_lte={q}&stringify=true&size=20",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
                   }
                 }
               }
+            }
+          },
+          {
+            "title": "Commence par",
+            "additionalProperties": false,
+            "required": ["type", "field", "value"],
+            "properties": {
+              "type": { "const": "starts" },
+              "field": { "$ref": "#/definitions/filterField" },
+              "value": {
+                "type": "string",
+                "title": "Valeur"
+              }
+            }
+          },
+          {
+            "title": "Exclure les valeurs vides ou non définies",
+            "additionalProperties": false,
+            "required": ["type", "field"],
+            "properties": {
+              "type": { "const": "exists" },
+              "field": { "$ref": "#/definitions/filterField" }
+            }
+          },
+          {
+            "title": "Restreindre aux valeurs vides ou non définies",
+            "additionalProperties": false,
+            "required": ["type", "field"],
+            "properties": {
+              "type": { "const": "notExists" },
+              "field": { "$ref": "#/definitions/filterField" }
             }
           },
           {
@@ -141,9 +172,9 @@
                 "items": { "type": "string" },
                 "layout": {
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                    "itemKey": "data",
-                    "itemTitle": "data"
+                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
                   }
                 }
               }

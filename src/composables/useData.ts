@@ -1,7 +1,7 @@
 import { computed, watch } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useFetch } from '@data-fair/lib-vue/fetch.js'
-import { filters2qs } from '@data-fair/lib-utils/filters'
+import { filters2params, type Filter } from '@data-fair/lib-utils/filters'
 import { useConfig } from '@/composables/config'
 
 export interface CarouselItem {
@@ -21,10 +21,6 @@ function normalizeFilters (filters: any[]): any[] {
     }
     return f
   }) ?? []
-}
-
-function escapeKey (key: string) {
-  return key.replace(/:/g, '\\:')
 }
 
 export function useData () {
@@ -50,15 +46,16 @@ export function useData () {
   const linesQuery = computed(() => {
     const imgKey = imageField.value?.key
     if (!imgKey) return null
-    const filters = normalizeFilters((config.value?.staticFilters || []) as any[])
-    filters.push(`_exists_:${escapeKey(imgKey)}`)
+    // filtres prédéfinis en paramètres REST suffixés (_in, _nin, _gte...), jamais en `qs`
+    const staticFilters = normalizeFilters((config.value?.staticFilters || []) as any[]) as Filter[]
     const select = [imgKey]
     if (labelField.value) select.push(labelField.value.key)
     if (webPageField.value) select.push(webPageField.value.key)
     const w = width.value || 1280
     const h = height.value || 800
     return {
-      qs: filters2qs(filters as any),
+      ...filters2params(staticFilters),
+      [`${imgKey}_exists`]: ' ',
       finalizedAt: finalizedAt.value,
       size: 100,
       select: select.join(','),
