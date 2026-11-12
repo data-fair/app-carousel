@@ -26,7 +26,11 @@ import { createConfig } from '@/composables/config'
 const i18n = createI18n({ legacy: false, locale: 'fr', fallbackLocale: 'en' })
 
 async function init () {
-  const session = await createSession({ directoryUrl: '/simple-directory', siteInfo: true })
+  const session = await createSession({
+    directoryUrl: '/simple-directory',
+    // _public.js sets window.__PUBLIC_SITE_INFO; siteInfo calls the deprecated refreshSiteInfo
+    siteInfo: !window.__PUBLIC_SITE_INFO
+  })
   i18n.global.locale.value = session.lang.value
   const app = createApp(App)
   app.use(createVuetify({
