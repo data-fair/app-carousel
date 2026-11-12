@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watch } from 'vue'
+import { mdiImageMultiple, mdiImageOff } from '@mdi/js'
 import { ofetch } from 'ofetch'
 import { getErrorMsg } from '@data-fair/lib-vue/ui-notif.js'
 import DfUiNotif from '@data-fair/lib-vuetify/ui-notif.vue'
@@ -29,13 +30,13 @@ if (reactiveSearchParams.draft === 'true') {
         v-if="error"
         :title="error"
         headline="Configuration incomplète"
-        icon="mdi-image-multiple"
+        :icon="mdiImageMultiple"
       />
       <v-empty-state
         v-else-if="dataError"
         :title="dataError"
         headline="Données manquantes"
-        icon="mdi-image-off"
+        :icon="mdiImageOff"
       />
       <Carousel
         v-else

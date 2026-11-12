@@ -1,4 +1,5 @@
 import 'vuetify/styles'
+import './styles/main.scss'
 import { createApp } from 'vue'
 import { createVuetify } from 'vuetify'
 import { vuetifySessionOptions } from '@data-fair/lib-vuetify'

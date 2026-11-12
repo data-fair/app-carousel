@@ -24,10 +24,10 @@ const overlayHeight = computed(() => display.xs.value ? 140 : 120)
 
 const typography: Record<string, string> = {
   xs: '',
-  sm: 'text-h6',
-  md: 'text-h5',
-  lg: 'text-h4',
-  xl: 'text-h4'
+  sm: 'text-title-large',
+  md: 'text-headline-small',
+  lg: 'text-headline-large',
+  xl: 'text-headline-large'
 }
 
 const carouselWidth = computed(() => width.value || 1280)
@@ -76,8 +76,7 @@ function normalizeUrl (url: string) {
           :style="`height:${overlayHeight}px`"
         >
           <v-row
-            class="text-white ma-0 pt-4"
-            align="center"
+            class="text-white ma-0 pt-4 align-center"
             no-gutters
             :style="`width:${carouselWidth}px`"
           >

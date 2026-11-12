@@ -6,7 +6,7 @@ import dfLibRecommended from '@data-fair/lib-utils/eslint/recommended.js'
 export default [
   ...dfLibRecommended,
   ...pluginVue.configs['flat/recommended'],
-  ...pluginVuetify.configs['flat/recommended'],
+  ...pluginVuetify.configs['flat/recommended-v4'],
   ...neostandard(),
   {
     files: ['**/*.vue'],
@@ -28,7 +28,13 @@ export default [
   {
     rules: {
       'vue/multi-word-component-names': 'off',
-      'vue/no-v-html': 'off'
+      'vue/no-v-html': 'off',
+      // mdi-svg iconset: an mdi-* string renders an empty icon, without any error
+      'vue/no-restricted-static-attribute': ['error', {
+        key: '/^((prepend|append)-(inner-)?)?icon$|-icon$/',
+        value: '/^mdi-/',
+        message: 'mdi-svg iconset: import the path from @mdi/js instead of an mdi-* string.'
+      }]
     }
   },
   { ignores: ['dist/*', 'node_modules/*', 'public/config-schema.json', 'src/config/.type/*'] }

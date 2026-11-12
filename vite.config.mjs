@@ -2,6 +2,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
 import vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import { settingsPath } from '@data-fair/lib-vuetify/vite.js'
 
 // Vite plugin to transform <i18n lang="yaml"> SFC blocks into JS modules.
 // @vitejs/plugin-vue returns custom blocks (including i18n) as raw content
@@ -67,7 +68,7 @@ export default defineConfig({
     vuetify({
       autoImport: true,
       styles: {
-        configFile: 'src/styles/settings.scss'
+        configFile: settingsPath
       }
     })
   ],

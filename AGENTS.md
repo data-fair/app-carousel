@@ -43,7 +43,7 @@ diaporama/carousel from a single DataFair dataset. Published on npm as
 │   │   ├── schema.json          # VJSF v3 : 2 onglets (Source de données, Présentation), filtres oneOf discriminator
 │   │   └── index.ts             # Re-export types générés
 │   └── styles/
-│       └── settings.scss
+│       └── main.scss            # Global app styles (Vuetify settings come from @data-fair/lib-vuetify)
 └── README.md
 ```
 
