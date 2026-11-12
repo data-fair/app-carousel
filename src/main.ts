@@ -20,9 +20,8 @@ import { createConfig } from '@/composables/config'
 // Must be at module level, BEFORE createApp().
 ;(window as { vIframeOptions?: { reactiveParams: typeof reactiveSearchParams } }).vIframeOptions = { reactiveParams: reactiveSearchParams }
 
-// createI18n doit être créé au niveau module pour que les composants de
-// @data-fair/lib-vuetify (ui-notif, layout-empty-state, ...) puissent l'utiliser
-// dès leur évaluation.
+// createI18n must be created at module level so that @data-fair/lib-vuetify
+// components (ui-notif, layout-empty-state, ...) can use it as soon as they are evaluated.
 const i18n = createI18n({ legacy: false, locale: 'fr', fallbackLocale: 'en' })
 
 async function init () {

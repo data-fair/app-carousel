@@ -1,7 +1,8 @@
+import type { Filter } from '@data-fair/lib-utils/filters'
 import { computed, watch } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import { useFetch } from '@data-fair/lib-vue/fetch.js'
-import { filters2params, type Filter } from '@data-fair/lib-utils/filters'
+import { filters2params } from '@data-fair/lib-utils/filters'
 import { useConfig } from '@/composables/config'
 
 export interface CarouselItem {
@@ -46,7 +47,7 @@ export function useData () {
   const linesQuery = computed(() => {
     const imgKey = imageField.value?.key
     if (!imgKey) return null
-    // filtres prédéfinis en paramètres REST suffixés (_in, _nin, _gte...), jamais en `qs`
+    // predefined filters as suffixed REST params (_in, _nin, _gte...), never in `qs`
     const staticFilters = normalizeFilters((config.value?.staticFilters || []) as any[]) as Filter[]
     const select = [imgKey]
     if (labelField.value) select.push(labelField.value.key)
