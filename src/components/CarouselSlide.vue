@@ -29,7 +29,7 @@ const mediaHeight = inject<Ref<number | undefined>>('carousel-media-height', ref
 const imageWidth = inject<Ref<number | undefined>>('carousel-image-width', ref(undefined))
 
 // provided by App: a broken image leaves the rotation
-const markFailed = inject<(key: string) => void>('carousel-mark-failed', () => {})
+const markFailed = inject<(src: string) => void>('carousel-mark-failed', () => {})
 
 const { t } = useI18n()
 const { config } = useConfig()
@@ -105,7 +105,7 @@ const padding = computed(() => (config.value.visible ?? 1) > 1 ? paddingClass[co
         draggable="false"
         decoding="async"
         @load="loaded = true"
-        @error="markFailed(item.key)"
+        @error="markFailed(item.src)"
       >
       <div
         v-if="!loaded"

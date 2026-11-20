@@ -154,6 +154,25 @@ test.describe('image by image', () => {
       await expect(page.locator('.carousel-slide', { hasText: 'Photo 3' })).toHaveCount(0)
       await expect(page.locator('[aria-roledescription="diapositive"]:not([inert])')).toHaveCount(4)
     })
+
+    test('a broken image does not hide the image at the same place in other lines', async ({ page }) => {
+      await setupMocks(page, stepConfig({ visible: 4 }))
+      await page.setViewportSize({ width: 1300, height: 300 })
+      // lines without _id (not selected): the position in the list is all that tells them apart
+      const withoutId = (lines: Record<string, unknown>[]) => lines.map(({ _id, ...line }) => line)
+      await setupData(page, withoutId(photoLines(3, { broken: [0, 1] })))
+      await gotoApp(page)
+      await expect(page.locator('[aria-roledescription="diapositive"]')).toHaveCount(1)
+      // another configuration, other lines, all valid
+      await page.unroute('**/datasets/test-dataset/lines**')
+      await setupData(page, withoutId(photoLines(3)).map((line, i) => ({ ...line, _thumbnail: `http://mock.test/thumb/other-${i}.png` })))
+      await page.evaluate(() => {
+        const configuration = JSON.parse(JSON.stringify(window.APPLICATION.configuration))
+        configuration.staticFilters = [{ type: 'exists', field: { key: 'nom' } }]
+        window.postMessage({ type: 'set-config', content: configuration }, '*')
+      })
+      await expect(page.locator('[aria-roledescription="diapositive"]')).toHaveCount(3)
+    })
   })
 
   test('the lines are read once, with a thumbnail sized on the slides', async ({ page }) => {
@@ -169,6 +188,6 @@ test.describe('image by image', () => {
     expect(params.get('finalizedAt')).toBe(photoDataset.finalizedAt)
     expect(params.get('nom_in')).toBe('Photo 1,Photo 2')
     expect(params.get('sort')).toBe('-nom')
-    expect(params.get('select')).toBe('photo,nom,site')
+    expect(params.get('select')).toBe('_id,photo,nom,site')
   })
 })

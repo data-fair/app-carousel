@@ -58,11 +58,12 @@ export function useItems (measuredSize: Ref<{ width: number, height: number }>) 
     else resizeTimer = setTimeout(() => { itemSize.value = { ...size } }, 500)
   }, { immediate: true, deep: true })
 
-  // images that failed to load leave the rotation instead of showing an empty slide
+  // images that failed to load leave the rotation instead of showing an empty slide; known by
+  // their address, not by the key of their line, which another configuration may reuse
   const failed = ref(new Set<string>())
-  const markFailed = (key: string) => {
-    if (failed.value.has(key)) return
-    failed.value = new Set([...failed.value, key])
+  const markFailed = (src: string) => {
+    if (failed.value.has(src)) return
+    failed.value = new Set([...failed.value, src])
   }
 
   const fromDataset = computed(() => config.value.source !== 'attachments')
@@ -94,7 +95,8 @@ export function useItems (measuredSize: Ref<{ width: number, height: number }>) 
   const linesQuery = computed(() => {
     const imgField = imageField.value ?? documentField.value
     if (!imgField) return {}
-    const select = [imgField.key]
+    // _id: a stable key for each image, not its position in the list
+    const select = ['_id', imgField.key]
     for (const field of [labelField.value, descriptionField.value, webPageField.value, colorField.value]) {
       if (field && !select.includes(field.key)) select.push(field.key)
     }
@@ -154,7 +156,7 @@ export function useItems (measuredSize: Ref<{ width: number, height: number }>) 
     })
   })
 
-  const items = computed(() => allItems.value.filter(item => !failed.value.has(item.key)))
+  const items = computed(() => allItems.value.filter(item => !failed.value.has(item.src)))
 
   // key of the data error, translated by App.vue
   const dataError = computed(() => {
