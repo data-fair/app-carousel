@@ -32,7 +32,7 @@
             {
               "type": "object",
               "title": "Jeu de données",
-              "description": "Le jeu de données doit avoir une colonne portant le concept « Image » (adresse d'une image) ou « Document numérique attaché » (pièce jointe de ligne).",
+              "description": "Le jeu de données doit avoir une colonne portant le concept « Image » (adresse d'une image) ou « Document numérique attaché » (pièce jointe de ligne). Seules les 100 premières images sont affichées : utilisez les filtres et le tri pour en réduire le nombre si besoin.",
               "properties": {
                 "href": {
                   "type": "string"

@@ -131,6 +131,22 @@ test.describe('image by image', () => {
     await expect(page.getByRole('button', { name: 'Reprendre le défilement' })).not.toHaveClass(/opacity-0/)
   })
 
+  test('the images on both sides are loaded ahead, whatever the direction, the far ones wait', async ({ page }) => {
+    for (const reverse of [false, true]) {
+      await setupMocks(page, stepConfig({ scroll: { mode: 'step', interval: 0, reverse } }))
+      await setupData(page, photoLines(10))
+      await gotoApp(page)
+      const cells = page.locator('[aria-roledescription="diapositive"]')
+      const shown = page.locator('[aria-roledescription="diapositive"]:not([inert])')
+      await expect(shown.locator('img')).toHaveCount(1)
+      // the next one and the previous one (the last image, the loop) are already there
+      await expect(cells.filter({ has: page.locator('img') }).filter({ hasText: 'Photo 2' })).not.toHaveCount(0)
+      await expect(cells.filter({ has: page.locator('img') }).filter({ hasText: 'Photo 10' })).not.toHaveCount(0)
+      // the middle of the list is not loaded yet
+      await expect(cells.filter({ hasText: 'Photo 6' }).locator('img')).toHaveCount(0)
+    }
+  })
+
   test('no pause button without autoplay', async ({ page }) => {
     await setupMocks(page, stepConfig())
     await setupData(page, photoLines(3))
