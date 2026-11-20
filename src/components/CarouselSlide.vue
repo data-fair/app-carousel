@@ -50,6 +50,13 @@ const imageLinkLabel = computed(() => {
   if (overlay.value && showTitle.value) return undefined
   return item.title || t('openLink', { host: hostname(item.link!) })
 })
+// a link opened in a new window says so in its title, as on the portals: its name, then the
+// mention; the mention alone when the image has no title
+const newWindowTitle = (name: string | undefined) => {
+  if (target.value !== '_blank') return undefined
+  return name ? `${name} - ${t('newWindow')}` : t('newWindow')
+}
+const imageLinkTitle = computed(() => linkMode.value === 'image' ? newWindowTitle(item.title) : undefined)
 // text alternative (RGAA 1.2/1.3): empty when a visible title or the link already says it,
 // the title otherwise, even when it is not displayed
 const alt = computed(() => {
@@ -71,6 +78,7 @@ const captionProps = computed(() => ({
   showButton: showButton.value,
   buttonLabel: buttonLabel.value,
   buttonLabelFull: buttonLabelFull.value,
+  buttonTitle: newWindowTitle(buttonLabelFull.value),
   target: target.value,
   width,
   layout: config.value.textLayout ?? 'spread'
@@ -93,6 +101,7 @@ const padding = computed(() => (config.value.visible ?? 1) > 1 ? paddingClass[co
       :target="linkMode === 'image' ? target : undefined"
       :rel="linkMode === 'image' ? rel : undefined"
       :aria-label="imageLinkLabel"
+      :title="imageLinkTitle"
       draggable="false"
     >
       <img
@@ -163,8 +172,10 @@ fr:
   loading: Chargement de l'image
   readMore: En savoir plus
   openLink: "Ouvrir {host}"
+  newWindow: Nouvelle fenêtre
 en:
   loading: Loading the image
   readMore: Read more
   openLink: "Open {host}"
+  newWindow: New window
 </i18n>

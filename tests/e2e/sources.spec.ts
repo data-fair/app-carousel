@@ -29,6 +29,39 @@ test.describe('sources and states', () => {
     await expect(images.nth(2)).toHaveAttribute('alt', '')
   })
 
+  test('a link opened in a new window says so, as on the portals', async ({ page, baseURL }) => {
+    const images = [
+      { attachment: 'a.png', title: 'Ville A', link: 'https://ville-a.test' },
+      { attachment: 'b.png', link: 'https://agence-b.test' }
+    ]
+    await page.setViewportSize({ width: 1300, height: 220 })
+    await setupMocks(page, buildApplication({ source: 'attachments', images, scroll: { mode: 'step', interval: 0 }, visible: 2, textPosition: 'below', link: 'image', linksTarget: '_blank' }))
+    await setupData(page, [])
+    await gotoApp(page)
+    await expect(page.getByRole('link', { name: 'Ville A' })).toHaveAttribute('title', 'Ville A - Nouvelle fenêtre')
+    // no title: the mention alone, no dangling dash
+    await expect(page.getByRole('link', { name: 'Ouvrir agence-b.test' })).toHaveAttribute('title', 'Nouvelle fenêtre')
+
+    // the button: its full name, then the mention
+    await page.evaluate((images) => {
+      window.postMessage({ type: 'set-config', content: { source: 'attachments', images, scroll: { mode: 'step', interval: 0 }, visible: 2, textPosition: 'below', link: 'button', linksTarget: '_blank' } }, '*')
+    }, images)
+    await expect(page.getByRole('link', { name: 'En savoir plus : Ville A' })).toHaveAttribute('title', 'En savoir plus : Ville A - Nouvelle fenêtre')
+    await expect(page.getByRole('link', { name: 'En savoir plus', exact: true })).toHaveAttribute('title', 'En savoir plus - Nouvelle fenêtre')
+
+    // in the page: nothing to announce
+    await page.evaluate((images) => {
+      window.postMessage({ type: 'set-config', content: { source: 'attachments', images, scroll: { mode: 'step', interval: 0 }, visible: 2, textPosition: 'below', link: 'image', linksTarget: '_top' } }, '*')
+    }, images)
+    await expect(page.getByRole('link', { name: 'Ville A' })).not.toHaveAttribute('title')
+
+    // translated with the session
+    await page.context().addCookies([{ name: 'i18n_lang', value: 'en', url: baseURL! }])
+    await setupMocks(page, buildApplication({ source: 'attachments', images, scroll: { mode: 'step', interval: 0 }, visible: 2, textPosition: 'below', link: 'image', linksTarget: '_blank' }))
+    await gotoApp(page)
+    await expect(page.getByRole('link', { name: 'Ville A' })).toHaveAttribute('title', 'Ville A - New window')
+  })
+
   test('the title is the alternative of an image when no caption is shown', async ({ page }) => {
     await setupMocks(page, buildApplication({
       source: 'dataset',

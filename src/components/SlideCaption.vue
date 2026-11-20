@@ -2,7 +2,7 @@
 import type { CarouselItem } from '@/composables/items'
 
 // title, description and button of a slide, over the image (on a scrim) or below it
-const { item, overlay, showTitle, showButton, buttonLabel, buttonLabelFull, target, width, layout } = defineProps<{
+const { item, overlay, showTitle, showButton, buttonLabel, buttonLabelFull, buttonTitle, target, width, layout } = defineProps<{
   item: CarouselItem
   overlay: boolean
   showTitle: boolean
@@ -10,6 +10,8 @@ const { item, overlay, showTitle, showButton, buttonLabel, buttonLabelFull, targ
   buttonLabel: string
   // the button text completed with the title, for screen readers (RGAA 6.1)
   buttonLabelFull: string
+  // "<name> - New window" when the link opens a new window
+  buttonTitle?: string
   target: string
   // width of the slide in px, to size the texts
   width: number
@@ -63,6 +65,7 @@ const classes = () => ({
       :rel="target === '_blank' ? 'noopener' : undefined"
       :size="buttonSize()"
       :aria-label="buttonLabelFull"
+      :title="buttonTitle"
       :color="overlay ? undefined : 'primary'"
       variant="outlined"
       class="flex-shrink-0"
