@@ -3,33 +3,21 @@ import pluginVue from 'eslint-plugin-vue'
 import pluginVuetify from 'eslint-plugin-vuetify'
 import dfLibRecommended from '@data-fair/lib-utils/eslint/recommended.js'
 
+// eslint-plugin-vuetify's flat/base already registers the `vue` plugin, and
+// ESLint 9.39+ refuses a redefined plugin: drop `plugins` from the vue config.
+const vueFlatRecommended = pluginVue.configs['flat/recommended'].map(({ plugins, ...rest }) => rest)
+
 export default [
   ...dfLibRecommended,
-  ...pluginVue.configs['flat/recommended'],
+  ...vueFlatRecommended,
   ...pluginVuetify.configs['flat/recommended-v4'],
-  ...neostandard(),
-  {
-    files: ['**/*.vue'],
-    languageOptions: {
-      parserOptions: {
-        parser: '@typescript-eslint/parser'
-      }
-    }
-  },
-  {
-    languageOptions: {
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        getComputedStyle: 'readonly'
-      }
-    }
-  },
+  ...neostandard({ ts: true, env: ['browser'] }),
   {
     rules: {
       'vue/multi-word-component-names': 'off',
-      'vue/no-v-html': 'off',
-      // mdi-svg iconset: an mdi-* string renders an empty icon, without any error
+      'vue/require-default-prop': 'off',
+      'no-undef': 'off', // typescript handles it
+      // the iconset is mdi-svg: an mdi-* string renders an empty icon, without any error
       'vue/no-restricted-static-attribute': ['error', {
         key: '/^((prepend|append)-(inner-)?)?icon$|-icon$/',
         value: '/^mdi-/',
@@ -37,5 +25,9 @@ export default [
       }]
     }
   },
-  { ignores: ['dist/*', 'node_modules/*', 'public/config-schema.json', 'src/config/.type/*'] }
+  {
+    files: ['**/*.vue'],
+    languageOptions: { parserOptions: { parser: '@typescript-eslint/parser' } }
+  },
+  { ignores: ['dist/', 'node_modules/', 'src/config/.type/', 'tests/output/'] }
 ]
