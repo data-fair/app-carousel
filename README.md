@@ -1,96 +1,63 @@
-# DataFair — Diaporama
+# DataFair — Carousel
 
-*Cette application permet de créer des diaporamas déroulants à partir d'un jeu de données DataFair.*
+*Cette application affiche des images qui défilent : un diaporama de photos, image par image, ou un bandeau continu de logos. Les images viennent d'un jeu de données DataFair ou des pièces jointes de l'application.*
 
-An application for [DataFair](https://koumoul-dev.github.io/data-fair/). It is hosted [by npm and the jsdelivr CDN](https://cdn.jsdelivr.net/npm/@data-fair/app-carousel).
+An application for [DataFair](https://github.com/data-fair/data-fair). It is hosted [by npm and the jsdelivr CDN](https://cdn.jsdelivr.net/npm/@data-fair/app-carousel).
 
-## Concept
+## Sources des images
 
-L'application exploite les concepts DataFair suivants pour détecter automatiquement les colonnes du jeu de données :
-
-- `http://schema.org/image` — colonne contenant l'URL de l'image (obligatoire)
-- `http://www.w3.org/2000/01/rdf-schema#label` — colonne du titre affiché sur l'overlay
-- `https://schema.org/WebPage` — colonne contenant l'URL du lien "En savoir plus"
+- **Jeu de données** : une colonne au concept `http://schema.org/image` (adresse d'une image, servie en vignette à la taille des diapositives) ou `http://schema.org/DigitalDocument` (pièce jointe de ligne, servie telle quelle). Le titre vient de la colonne au concept `http://www.w3.org/2000/01/rdf-schema#label`, le lien de la colonne au concept `https://schema.org/WebPage`. Filtres prédéfinis et tri au choix.
+- **Pièces jointes de l'application** : une liste d'images, chacune avec son titre et son lien.
 
 ## Configuration
 
-Le fichier `public/config-schema.json` (généré depuis `src/config/schema.json`) décrit la configuration acceptée par l'application. Il est généré via :
+`public/config-schema.json` est le schéma du formulaire de configuration, écrit à la main ; `npm run build-types` en génère les types TypeScript. Quatre sections :
 
-```bash
-npm run build-types
-```
+1. **Source des images** : jeu de données (filtres, tri) ou pièces jointes de l'application.
+2. **Défilement** : image par image (durée d'affichage, 0 pour un défilement manuel) ou continu (vitesse) ; sens.
+3. **Images** : nombre d'images visibles (réduit automatiquement selon la largeur de l'application), cadrage (remplir le cadre ou image entière), espacement, marge, fond blanc pour des logos, niveaux de gris.
+4. **Titre et lien** : titre sur l'image, sous l'image ou masqué ; bouton « En savoir plus », image cliquable ou aucun lien.
 
-Deux onglets :
+Les configurations des versions 0.x et 1.x (`interval`, `hideTitle`, `distactivateLinks`) sont encore lues : voir `src/utils/legacy-config.ts`.
 
-1. **Source de données** — choix du jeu de données + filtres prédéfinis (`staticFilters` `in` / `interval` / `out`)
-2. **Présentation** — intervalle de rotation, cible des liens, masquage titre/liens
+## Accessibilité
 
-## Technical stack
+Tout ce qui défile seul se met en pause : bouton pause, survol de la souris, focus clavier, préférence de mouvement réduit. Les diapositives masquées sont inertes, les liens sont nommés par le titre de l'image.
 
-- **Vue 3.5+** (Composition API, `<script setup lang="ts">`)
-- **Vuetify 4** (`vite-plugin-vuetify`)
-- **Vite 8**
-- **TypeScript** strict
-- `@data-fair/lib-vue`, `@data-fair/lib-vuetify`, `@data-fair/lib-utils`
-- `@vueuse/core` (`useWindowSize`)
-- Dev server : `df-dev-server` + Zellij layout `.zellij.kdl`
-
-## Development Setup
-
-Installer les dépendances :
+## Développement
 
 ```bash
 npm install
+npm run dev          # zellij : vite + df-dev-server (ports dans un .env généré par df-dev-env)
+npm run dev-app      # vite seul
+npm run dev-server   # df-dev-server seul
 ```
 
-Configurer l'instance DataFair visée via `.dev-config.json` (déjà présent à la racine) ou un fichier `.env` :
+Le data-fair visé se règle dans le `.env` (jamais commité) :
 
 ```
-DATAFAIR_URL=https://koumoul.com/s/data-fair
-DATAFAIR_OWNER_TYPE=organization or user
+DATAFAIR_URL=https://staging-koumoul.com/data-fair
+DATAFAIR_OWNER_TYPE=organization
 DATAFAIR_OWNER_ID=...
-DATAFAIR_API_KEY= leave empty to use only public datasets
-```
-
-Lancer le dev server avec hot reload (Vite + `df-dev-server` dans un layout Zellij) :
-
-```bash
-npm run dev
-```
-
-Ou lancer chaque partie séparément :
-
-```bash
-npm run dev-server   # df-dev-server (reverse proxy DataFair)
-npm run dev-app      # Vite (HMR)
+DATAFAIR_API_KEY=   # vide : jeux de données publics seulement
 ```
 
 ## Commandes
 
 ```bash
-npm run dev          # zellij layout : vite + df-dev-server
-npm run dev-app      # vite only
-npm run dev-server   # df-dev-server only
+npm run build-types  # types générés depuis public/config-schema.json
+npm run lint         # lint-fix pour corriger
+npm run type-check
+npm run test-unit    # tests unitaires (sans navigateur)
+npm run test-e2e     # tests e2e, données simulées
+npm run quality      # tout, lancé par le hook pre-push
 npm run build        # build CDN (PUBLIC_URL=jsdelivr)
-npm run build-preview
-npm run build-types  # génère src/config/.type/ et public/config-schema.json
-npm run type-check   # vue-tsc --noEmit
-npm run lint         # eslint --fix
 ```
 
-## Deployment
-
-Publier sur le registre npm global (membre de l'organisation owner) :
+## Publication
 
 ```bash
 npm version patch|minor|major
 npm publish
 git push && git push --tags
-```
-
-Pour une version de test pré-publiée :
-
-```bash
-npm version prerelease --preid=staging
-npm publish --tag staging
 ```

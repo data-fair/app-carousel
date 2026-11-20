@@ -1,18 +1,38 @@
 {
   "type": "object",
-  "required": [
-    "datasets"
+  "x-exports": [
+    "types"
   ],
   "allOf": [
     {
-      "title": "Source de données",
+      "title": "Source des images",
       "properties": {
+        "source": {
+          "type": "string",
+          "title": "Les images viennent",
+          "default": "dataset",
+          "oneOf": [
+            {
+              "const": "dataset",
+              "title": "D'un jeu de données"
+            },
+            {
+              "const": "attachments",
+              "title": "Des pièces jointes de l'application"
+            }
+          ],
+          "layout": "radio-group"
+        },
         "datasets": {
           "type": "array",
+          "layout": {
+            "if": "parent.data.source !== 'attachments'"
+          },
           "items": [
             {
               "type": "object",
               "title": "Jeu de données",
+              "description": "Le jeu de données doit avoir une colonne portant le concept « Image » (adresse d'une image) ou « Document numérique attaché » (pièce jointe de ligne).",
               "properties": {
                 "href": {
                   "type": "string"
@@ -29,7 +49,8 @@
               },
               "layout": {
                 "getItems": {
-                  "url": "api/v1/datasets?status=finalized&q={q}&select=id,title,schema&${context.datasetFilter}&concepts=http://schema.org/image,http://schema.org/DigitalDocument&size=100",
+                  "url": "api/v1/datasets?status=finalized&select=id,title,schema&${context.datasetFilter}&concepts=http://schema.org/image,http://schema.org/DigitalDocument&size=50",
+                  "qSearchParam": "q",
                   "itemKey": "data.href",
                   "itemTitle": "data.title",
                   "itemsResults": "data.results"
@@ -39,316 +60,694 @@
           ]
         },
         "staticFilters": {
-          "title": "Filtres prédéfinis",
+          "$ref": "#/$defs/filters",
+          "layout": {
+            "if": "parent.data.source !== 'attachments' && parent.data.datasets?.[0]",
+            "comp": "list",
+            "messages": {
+              "addItem": "Ajouter un filtre"
+            }
+          }
+        },
+        "sortField": {
+          "type": "object",
+          "title": "Trier les images par",
+          "description": "Sans tri, les images suivent l'ordre du jeu de données.",
+          "layout": {
+            "if": "parent.data.source !== 'attachments' && parent.data.datasets?.[0]",
+            "comp": "autocomplete",
+            "cols": {
+              "xs": 12,
+              "sm": 8
+            },
+            "getItems": {
+              "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+              "itemIcon": "null",
+              "itemKey": "data.key",
+              "itemTitle": "data.label"
+            }
+          },
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            }
+          }
+        },
+        "sortDesc": {
+          "type": "boolean",
+          "title": "Ordre décroissant",
+          "default": false,
+          "layout": {
+            "if": "parent.data.source !== 'attachments' && parent.data.sortField",
+            "cols": {
+              "xs": 12,
+              "sm": 4
+            }
+          }
+        },
+        "images": {
           "type": "array",
+          "title": "Images",
+          "description": "Ajoutez d'abord les fichiers dans l'onglet « Pièces jointes » de l'application.",
+          "layout": {
+            "if": "parent.data.source === 'attachments'",
+            "listEditMode": "inline-single",
+            "listActions": [
+              "add",
+              "edit",
+              "delete",
+              "sort",
+              "duplicate"
+            ],
+            "itemTitle": "data.title || data.attachment || 'Nouvelle image'",
+            "messages": {
+              "addItem": "Ajouter une image"
+            }
+          },
           "items": {
             "type": "object",
-            "discriminator": {
-              "propertyName": "type"
-            },
-            "default": {
-              "type": "in"
-            },
-            "oneOf": [
-              {
-                "title": "Restreindre à des valeurs",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field",
-                  "values"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "in"
+            "required": [
+              "attachment"
+            ],
+            "properties": {
+              "attachment": {
+                "type": "string",
+                "title": "Fichier",
+                "layout": {
+                  "comp": "autocomplete",
+                  "getItems": {
+                    "expr": "context.attachments",
+                    "itemKey": "data.name",
+                    "itemTitle": "data.title || data.name"
                   },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "values": {
-                    "type": "array",
-                    "title": "Valeurs",
-                    "items": {
-                      "type": "string"
-                    },
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                        "itemKey": "data[\"value\"]",
-                        "itemTitle": "data[\"label\"]"
-                      }
-                    }
+                  "props": {
+                    "noDataText": "Aucune pièce jointe : ajoutez-en dans l'onglet « Pièces jointes »."
                   }
                 }
               },
-              {
-                "title": "Restreindre à un intervalle de valeurs",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "interval"
-                  },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "minValue": {
-                    "type": "string",
-                    "title": "Valeur min",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=asc&${parent.parent.data.field.key}_gte={q}&stringify=true&size=20",
-                        "itemKey": "data[\"value\"]",
-                        "itemTitle": "data[\"label\"]"
-                      }
-                    }
-                  },
-                  "maxValue": {
-                    "type": "string",
-                    "title": "Valeur max",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=desc&${parent.parent.data.field.key}_lte={q}&stringify=true&size=20",
-                        "itemKey": "data[\"value\"]",
-                        "itemTitle": "data[\"label\"]"
-                      }
-                    }
-                  }
-                }
+              "title": {
+                "type": "string",
+                "title": "Titre",
+                "description": "Affiché selon les réglages de l'onglet « Titre et lien ». C'est aussi le texte lu par les lecteurs d'écran."
               },
-              {
-                "title": "Commence par",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field",
-                  "value"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "starts"
-                  },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "value": {
-                    "type": "string",
-                    "title": "Valeur"
-                  }
-                }
+              "description": {
+                "type": "string",
+                "title": "Description",
+                "description": "Texte court affiché sous le titre quand l'option « Afficher la description » est cochée.",
+                "layout": "textarea"
               },
-              {
-                "title": "Exclure les valeurs vides ou non définies",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "exists"
-                  },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "title": "Restreindre aux valeurs vides ou non définies",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "notExists"
-                  },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                }
-              },
-              {
-                "title": "Exclure des valeurs",
-                "additionalProperties": false,
-                "required": [
-                  "type",
-                  "field",
-                  "values"
-                ],
-                "properties": {
-                  "type": {
-                    "const": "out"
-                  },
-                  "field": {
-                    "type": "object",
-                    "title": "Colonne de filtre",
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                        "itemKey": "data.key",
-                        "itemTitle": "data.label"
-                      }
-                    },
-                    "properties": {
-                      "key": {
-                        "type": "string"
-                      },
-                      "label": {
-                        "type": "string"
-                      }
-                    }
-                  },
-                  "values": {
-                    "type": "array",
-                    "title": "Valeurs à exclure",
-                    "items": {
-                      "type": "string"
-                    },
-                    "layout": {
-                      "getItems": {
-                        "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                        "itemKey": "data[\"value\"]",
-                        "itemTitle": "data[\"label\"]"
-                      }
-                    }
-                  }
-                }
+              "link": {
+                "type": "string",
+                "title": "Lien",
+                "description": "Adresse de la page ouverte au clic, par exemple https://www.exemple.fr."
               }
-            ]
+            }
           }
         }
       }
     },
     {
-      "title": "Présentation",
+      "title": "Défilement",
       "properties": {
-        "interval": {
-          "type": "integer",
-          "title": "Durée d'affichage des images (sec)",
-          "description": "Mettre à 0 pour désactiver la rotation automatique",
-          "default": 6,
-          "minimum": 0,
-          "maximum": 30
-        },
-        "linksTarget": {
-          "type": "string",
-          "title": "Mode d'ouverture des liens",
-          "default": "_top",
+        "scroll": {
+          "type": "object",
+          "default": {
+            "mode": "step"
+          },
+          "discriminator": {
+            "propertyName": "mode"
+          },
+          "oneOfLayout": {
+            "label": "Mode de défilement"
+          },
+          "required": [
+            "mode"
+          ],
           "oneOf": [
             {
-              "const": "_top",
-              "title": "Dans le même onglet"
+              "title": "Diaporama : une image après l’autre, avec des flèches",
+              "properties": {
+                "mode": {
+                  "const": "step"
+                },
+                "interval": {
+                  "type": "integer",
+                  "default": 6,
+                  "minimum": 0,
+                  "maximum": 20,
+                  "description": "À 0, les images ne défilent pas d'elles-mêmes : on les fait avancer avec les flèches.",
+                  "layout": {
+                    "comp": "slider",
+                    "label": "",
+                    "slots": {
+                      "before": "Durée d'affichage de chaque image (secondes)"
+                    },
+                    "props": {
+                      "showTicks": "always",
+                      "thumbLabel": true
+                    }
+                  }
+                },
+                "reverse": {
+                  "type": "boolean",
+                  "title": "Inverser le sens du défilement",
+                  "description": "Les images défilent alors vers la droite.",
+                  "default": false
+                }
+              }
             },
             {
-              "const": "_blank",
-              "title": "Dans un nouvel onglet"
+              "title": "Bandeau : défilement continu, sans arrêt",
+              "properties": {
+                "mode": {
+                  "const": "continuous"
+                },
+                "speed": {
+                  "type": "integer",
+                  "default": 4,
+                  "minimum": 1,
+                  "maximum": 10,
+                  "layout": {
+                    "comp": "slider",
+                    "label": "",
+                    "slots": {
+                      "before": "Vitesse"
+                    },
+                    "props": {
+                      "showTicks": "always",
+                      "thumbLabel": true
+                    }
+                  }
+                },
+                "reverse": {
+                  "type": "boolean",
+                  "title": "Inverser le sens du défilement",
+                  "description": "Les images défilent alors vers la droite.",
+                  "default": false
+                },
+                "fadeEdges": {
+                  "type": "boolean",
+                  "title": "Estomper les bords",
+                  "default": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "title": "Images",
+      "properties": {
+        "height": {
+          "type": "object",
+          "default": {
+            "type": "fill"
+          },
+          "discriminator": {
+            "propertyName": "type"
+          },
+          "oneOfLayout": {
+            "label": "Hauteur des images"
+          },
+          "required": [
+            "type"
+          ],
+          "description": "- **Toute la hauteur du cadre** : la page qui affiche l'application décide de sa hauteur (dans un portail, le mode d'affichage du bloc application).\n- **Ratio** et **Hauteur fixe** : l'application annonce sa hauteur. Dans un portail, choisissez « Hauteur optimale » dans le bloc application pour qu'elle soit suivie.",
+          "oneOf": [
+            {
+              "title": "Toute la hauteur du cadre",
+              "properties": {
+                "type": {
+                  "const": "fill"
+                }
+              }
+            },
+            {
+              "title": "Ratio largeur / hauteur",
+              "properties": {
+                "type": {
+                  "const": "ratio"
+                },
+                "ratio": {
+                  "type": "string",
+                  "title": "Ratio (largeur / hauteur)",
+                  "default": "16/9",
+                  "oneOf": [
+                    {
+                      "const": "3/1",
+                      "title": "Bandeau 3/1"
+                    },
+                    {
+                      "const": "2/1",
+                      "title": "Large 2/1"
+                    },
+                    {
+                      "const": "16/9",
+                      "title": "Paysage 16/9"
+                    },
+                    {
+                      "const": "3/2",
+                      "title": "Photo 3/2"
+                    },
+                    {
+                      "const": "4/3",
+                      "title": "Classique 4/3"
+                    },
+                    {
+                      "const": "1/1",
+                      "title": "Carré 1/1"
+                    },
+                    {
+                      "const": "3/4",
+                      "title": "Portrait 3/4"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "title": "Hauteur fixe",
+              "properties": {
+                "type": {
+                  "const": "fixed"
+                },
+                "px": {
+                  "type": "integer",
+                  "title": "Hauteur (px)",
+                  "default": 120,
+                  "minimum": 40,
+                  "maximum": 1200
+                }
+              }
             }
           ]
         },
-        "distactivateLinks": {
-          "type": "boolean",
-          "title": "Désactiver les liens",
-          "description": "Un bouton 'en savoir plus' est automatiquement ajouté quand la source de données a une colonne avec le concept 'page web'. Cette option permet de le cacher.",
-          "default": false
+        "visible": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 8,
+          "description": "Nombre d'images côte à côte sur un grand écran. Il diminue automatiquement quand l'application est plus étroite :\n\n| **Réglé** | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n| :-- | --: | --: | --: | --: | --: | --: | --: | --: |\n| **≥ 1 145 px** | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n| **≥ 840 px** | 1 | 2 | 3 | 3 | 4 | 4 | 5 | 6 |\n| **≥ 600 px** | 1 | 1 | 2 | 2 | 3 | 3 | 4 | 4 |\n| **< 600 px** | 1 | 1 | 1 | 2 | 2 | 2 | 3 | 3 |\n\nLa largeur est celle de l'application, pas celle de l'écran : une application placée dans une demi-colonne de portail affiche moins d'images.",
+          "layout": {
+            "comp": "slider",
+            "label": "",
+            "slots": {
+              "before": "Nombre d'images visibles"
+            },
+            "props": {
+              "showTicks": "always",
+              "thumbLabel": true
+            }
+          }
         },
-        "hideTitle": {
+        "fit": {
+          "type": "string",
+          "title": "Cadrage",
+          "description": "« Remplir le cadre » peut couper les bords de l'image : adapté aux photos. « Image entière » la montre sans la couper : adapté aux logos.",
+          "default": "cover",
+          "oneOf": [
+            {
+              "const": "cover",
+              "title": "Remplir le cadre"
+            },
+            {
+              "const": "contain",
+              "title": "Image entière"
+            }
+          ]
+        },
+        "gap": {
+          "type": "string",
+          "title": "Espacement entre les images",
+          "default": "none",
+          "oneOf": [
+            {
+              "const": "none",
+              "title": "Aucun"
+            },
+            {
+              "const": "small",
+              "title": "Petit"
+            },
+            {
+              "const": "medium",
+              "title": "Moyen"
+            },
+            {
+              "const": "large",
+              "title": "Grand"
+            }
+          ],
+          "layout": {
+            "if": "parent.data.visible > 1",
+            "cols": {
+              "xs": 12,
+              "sm": 6
+            }
+          }
+        },
+        "padding": {
+          "type": "string",
+          "title": "Marge autour de chaque image",
+          "default": "none",
+          "oneOf": [
+            {
+              "const": "none",
+              "title": "Aucune"
+            },
+            {
+              "const": "small",
+              "title": "Petite"
+            },
+            {
+              "const": "medium",
+              "title": "Moyenne"
+            },
+            {
+              "const": "large",
+              "title": "Grande"
+            }
+          ],
+          "layout": {
+            "if": "parent.data.visible > 1",
+            "cols": {
+              "xs": 12,
+              "sm": 6
+            }
+          }
+        },
+        "background": {
+          "type": "object",
+          "title": "Fond derrière chaque image",
+          "description": "Un fond clair garde lisibles les logos dessinés pour un fond blanc, y compris quand le site est affiché en thème sombre.",
+          "default": {
+            "type": "none"
+          },
+          "discriminator": {
+            "propertyName": "type"
+          },
+          "oneOfLayout": {
+            "label": "Fond derrière chaque image"
+          },
+          "required": [
+            "type"
+          ],
+          "oneOf": [
+            {
+              "title": "Aucun",
+              "properties": {
+                "type": {
+                  "const": "none"
+                }
+              }
+            },
+            {
+              "title": "Couleur du site",
+              "properties": {
+                "type": {
+                  "const": "theme"
+                },
+                "color": {
+                  "type": "string",
+                  "title": "Couleur",
+                  "default": "surface",
+                  "oneOf": [
+                    {
+                      "const": "primary",
+                      "title": "Primaire"
+                    },
+                    {
+                      "const": "secondary",
+                      "title": "Secondaire"
+                    },
+                    {
+                      "const": "accent",
+                      "title": "Accent"
+                    },
+                    {
+                      "const": "background",
+                      "title": "Fond de page"
+                    },
+                    {
+                      "const": "surface",
+                      "title": "Fond des cartes"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "title": "Couleur personnalisée",
+              "properties": {
+                "type": {
+                  "const": "custom"
+                },
+                "hexValue": {
+                  "type": "string",
+                  "title": "Couleur",
+                  "default": "#FFFFFF",
+                  "layout": "color-picker"
+                }
+              }
+            },
+            {
+              "title": "Couleur venant des données",
+              "description": "Jeu de données uniquement : chaque image prend la couleur de sa ligne.",
+              "properties": {
+                "type": {
+                  "const": "field"
+                },
+                "field": {
+                  "type": "object",
+                  "title": "Colonne de couleur",
+                  "description": "Par défaut, la colonne portant le concept « Couleur ». Les valeurs sont des couleurs CSS (#FFFFFF, red…) ; une valeur vide ou invalide laisse l'image sans fond.",
+                  "layout": {
+                    "comp": "autocomplete",
+                    "getItems": {
+                      "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false&type=string",
+                      "itemIcon": "null",
+                      "itemKey": "data.key",
+                      "itemTitle": "data.label"
+                    }
+                  },
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "grayscale": {
           "type": "boolean",
-          "title": "Cacher les titres",
-          "description": "Un texte sur fond sombre est automatiquement ajouté quand la source de données a une colonne avec le concept 'libellé'. Cette option permet de le cacher.",
+          "title": "Images en niveaux de gris, en couleur au survol",
           "default": false
         }
       }
+    },
+    {
+      "title": "Titre et lien",
+      "allOf": [
+        {
+          "title": "Texte",
+          "properties": {
+            "showTitle": {
+              "type": "boolean",
+              "title": "Afficher le titre",
+              "default": true
+            },
+            "titleField": {
+              "type": "object",
+              "title": "Colonne du titre",
+              "description": "Par défaut, la colonne portant le concept « Libellé ». Même masqué, le titre reste le texte lu par les lecteurs d’écran.",
+              "layout": {
+                "if": "rootData.source !== 'attachments' && rootData.datasets?.[0] && parent.data.showTitle !== false",
+                "comp": "autocomplete",
+                "getItems": {
+                  "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+                  "itemIcon": "null",
+                  "itemKey": "data.key",
+                  "itemTitle": "data.label"
+                }
+              },
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            },
+            "showDescription": {
+              "type": "boolean",
+              "title": "Afficher la description",
+              "default": false,
+              "description": "Un texte court sous le titre. Pour un jeu de données, il vient de la colonne portant le concept « Description », ou de la colonne choisie ci-dessous."
+            },
+            "descriptionField": {
+              "type": "object",
+              "title": "Colonne de la description",
+              "description": "Par défaut, la colonne portant le concept « Description ».",
+              "layout": {
+                "if": "rootData.source !== 'attachments' && rootData.datasets?.[0] && parent.data.showDescription",
+                "comp": "autocomplete",
+                "getItems": {
+                  "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+                  "itemIcon": "null",
+                  "itemKey": "data.key",
+                  "itemTitle": "data.label"
+                }
+              },
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "Lien",
+          "properties": {
+            "link": {
+              "type": "string",
+              "title": "Lien",
+              "default": "button",
+              "oneOf": [
+                {
+                  "const": "button",
+                  "title": "Bouton"
+                },
+                {
+                  "const": "image",
+                  "title": "Toute l'image"
+                },
+                {
+                  "const": "none",
+                  "title": "Aucun lien"
+                }
+              ]
+            },
+            "linkField": {
+              "type": "object",
+              "title": "Colonne du lien",
+              "description": "Par défaut, la colonne portant le concept « Page Web ».",
+              "layout": {
+                "if": "rootData.source !== 'attachments' && rootData.datasets?.[0] && parent.data.link !== 'none'",
+                "comp": "autocomplete",
+                "getItems": {
+                  "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+                  "itemIcon": "null",
+                  "itemKey": "data.key",
+                  "itemTitle": "data.label"
+                }
+              },
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                }
+              }
+            },
+            "buttonLabel": {
+              "type": "string",
+              "title": "Texte du bouton",
+              "description": "Laissé vide, le bouton affiche « En savoir plus », traduit dans la langue du visiteur.",
+              "layout": {
+                "if": "parent.data.link === 'button'",
+                "props": {
+                  "placeholder": "En savoir plus"
+                }
+              }
+            },
+            "linksTarget": {
+              "type": "string",
+              "title": "Ouverture des liens",
+              "default": "_top",
+              "description": "Une application est souvent affichée dans une page de portail : « Dans la page » remplace toute cette page par la page du lien.",
+              "oneOf": [
+                {
+                  "const": "_top",
+                  "title": "Dans la page"
+                },
+                {
+                  "const": "_blank",
+                  "title": "Dans un nouvel onglet"
+                }
+              ],
+              "layout": {
+                "if": "parent.data.link !== 'none'"
+              }
+            }
+          }
+        },
+        {
+          "title": "Disposition",
+          "properties": {
+            "textPosition": {
+              "type": "string",
+              "title": "Position du texte et du bouton",
+              "default": "overlay",
+              "oneOf": [
+                {
+                  "const": "overlay",
+                  "title": "Sur l'image, en bas"
+                },
+                {
+                  "const": "below",
+                  "title": "Sous l'image"
+                }
+              ],
+              "layout": {
+                "if": "(parent.data.showTitle !== false || parent.data.showDescription || parent.data.link === 'button')"
+              }
+            },
+            "textLayout": {
+              "type": "string",
+              "title": "Disposition",
+              "default": "spread",
+              "oneOf": [
+                {
+                  "const": "spread",
+                  "title": "Texte à gauche, bouton à droite"
+                },
+                {
+                  "const": "left",
+                  "title": "Texte puis bouton, alignés à gauche"
+                },
+                {
+                  "const": "center",
+                  "title": "Texte puis bouton, centrés"
+                }
+              ],
+              "layout": {
+                "if": "(parent.data.showTitle !== false || parent.data.showDescription || parent.data.link === 'button')"
+              }
+            }
+          }
+        }
+      ]
     }
   ],
-  "definitions": {
+  "$defs": {
     "filters": {
-      "title": "Filtres prédéfinis",
       "type": "array",
+      "title": "Filtres prédéfinis",
       "items": {
         "type": "object",
         "discriminator": {
@@ -357,37 +756,19 @@
         "default": {
           "type": "in"
         },
+        "required": [
+          "type"
+        ],
         "oneOf": [
           {
             "title": "Restreindre à des valeurs",
             "additionalProperties": false,
-            "required": [
-              "type",
-              "field",
-              "values"
-            ],
             "properties": {
               "type": {
                 "const": "in"
               },
               "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/$defs/filterField"
               },
               "values": {
                 "type": "array",
@@ -396,8 +777,9 @@
                   "type": "string"
                 },
                 "layout": {
+                  "if": "parent.data.field",
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?q={q}&q_mode=complete&size=50&stringify=true",
                     "itemKey": "data[\"value\"]",
                     "itemTitle": "data[\"label\"]"
                   }
@@ -406,41 +788,49 @@
             }
           },
           {
-            "title": "Restreindre à un intervalle de valeurs",
+            "title": "Exclure des valeurs",
             "additionalProperties": false,
-            "required": [
-              "type",
-              "field"
-            ],
+            "properties": {
+              "type": {
+                "const": "out"
+              },
+              "field": {
+                "$ref": "#/$defs/filterField"
+              },
+              "values": {
+                "type": "array",
+                "title": "Valeurs à exclure",
+                "items": {
+                  "type": "string"
+                },
+                "layout": {
+                  "if": "parent.data.field",
+                  "getItems": {
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?q={q}&q_mode=complete&size=50&stringify=true",
+                    "itemKey": "data[\"value\"]",
+                    "itemTitle": "data[\"label\"]"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "title": "Restreindre à un intervalle",
+            "additionalProperties": false,
             "properties": {
               "type": {
                 "const": "interval"
               },
               "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/$defs/filterField"
               },
               "minValue": {
                 "type": "string",
                 "title": "Valeur min",
                 "layout": {
+                  "if": "parent.data.field",
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=asc&${parent.parent.data.field.key}_gte={q}&stringify=true&size=20",
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?sort=asc&${parent.data.field?.key || ''}_gte={q}&stringify=true&size=50",
                     "itemKey": "data[\"value\"]",
                     "itemTitle": "data[\"label\"]"
                   }
@@ -450,8 +840,9 @@
                 "type": "string",
                 "title": "Valeur max",
                 "layout": {
+                  "if": "parent.data.field",
                   "getItems": {
-                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?sort=desc&${parent.parent.data.field.key}_lte={q}&stringify=true&size=20",
+                    "url": "${rootData.datasets?.[0]?.href || ''}/values-labels/${parent.data.field?.key || ''}?sort=desc&${parent.data.field?.key || ''}_lte={q}&stringify=true&size=50",
                     "itemKey": "data[\"value\"]",
                     "itemTitle": "data[\"label\"]"
                   }
@@ -462,148 +853,43 @@
           {
             "title": "Commence par",
             "additionalProperties": false,
-            "required": [
-              "type",
-              "field",
-              "value"
-            ],
             "properties": {
               "type": {
                 "const": "starts"
               },
               "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/$defs/filterField"
               },
               "value": {
                 "type": "string",
-                "title": "Valeur"
+                "title": "Valeur",
+                "layout": {
+                  "if": "parent.data.field"
+                }
               }
             }
           },
           {
             "title": "Exclure les valeurs vides ou non définies",
             "additionalProperties": false,
-            "required": [
-              "type",
-              "field"
-            ],
             "properties": {
               "type": {
                 "const": "exists"
               },
               "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/$defs/filterField"
               }
             }
           },
           {
             "title": "Restreindre aux valeurs vides ou non définies",
             "additionalProperties": false,
-            "required": [
-              "type",
-              "field"
-            ],
             "properties": {
               "type": {
                 "const": "notExists"
               },
               "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          {
-            "title": "Exclure des valeurs",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "field",
-              "values"
-            ],
-            "properties": {
-              "type": {
-                "const": "out"
-              },
-              "field": {
-                "type": "object",
-                "title": "Colonne de filtre",
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/schema?calculated=false",
-                    "itemKey": "data.key",
-                    "itemTitle": "data.label"
-                  }
-                },
-                "properties": {
-                  "key": {
-                    "type": "string"
-                  },
-                  "label": {
-                    "type": "string"
-                  }
-                }
-              },
-              "values": {
-                "type": "array",
-                "title": "Valeurs à exclure",
-                "items": {
-                  "type": "string"
-                },
-                "layout": {
-                  "getItems": {
-                    "url": "${rootData.datasets[0].href}/values-labels/${parent.parent.data.field.key}?q={q}&q_mode=complete&size=100&stringify=true",
-                    "itemKey": "data[\"value\"]",
-                    "itemTitle": "data[\"label\"]"
-                  }
-                }
+                "$ref": "#/$defs/filterField"
               }
             }
           }
@@ -612,12 +898,14 @@
     },
     "filterField": {
       "type": "object",
-      "title": "Colonne de filtre",
+      "title": "Colonne",
       "layout": {
+        "comp": "autocomplete",
         "getItems": {
-          "url": "${rootData.datasets[0].href}/schema?calculated=false",
-          "itemKey": "data.key",
-          "itemTitle": "data.label"
+          "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
+          "itemIcon": "null",
+          "itemKey": "data[\"key\"]",
+          "itemTitle": "data[\"label\"]"
         }
       },
       "properties": {
@@ -626,9 +914,11 @@
         },
         "label": {
           "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
       }
     }
-  },
-  "$id": "config-resolved"
+  }
 }
