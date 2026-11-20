@@ -94,6 +94,26 @@ test.describe('image by image', () => {
     await expect(currentLabel(page)).toHaveText('Image 1 sur 5')
   })
 
+  test('several images: both arrows centered, the pause button never pushes them or leaves the frame', async ({ page }) => {
+    for (const height of [300, 60]) {
+      await page.setViewportSize({ width: 1300, height })
+      await setupMocks(page, stepConfig({ scroll: { mode: 'step', interval: 5 }, visible: 4, showTitle: false, link: 'none' }))
+      await setupData(page, photoLines(6))
+      await gotoApp(page)
+      const previous = (await page.getByRole('button', { name: 'Image précédente' }).boundingBox())!
+      const next = (await page.getByRole('button', { name: 'Image suivante' }).boundingBox())!
+      const pause = (await page.getByRole('button', { name: /Mettre en pause/ }).boundingBox())!
+      expect(Math.abs(previous.y - next.y), `arrows aligned in a ${height}px frame`).toBeLessThan(1)
+      for (const box of [previous, next, pause]) {
+        expect(box.y).toBeGreaterThanOrEqual(0)
+        expect(box.y + box.height).toBeLessThanOrEqual(height)
+      }
+      // the pause button does not cover the next arrow
+      const overlap = pause.x < next.x + next.width && next.x < pause.x + pause.width && pause.y < next.y + next.height && next.y < pause.y + pause.height
+      expect(overlap, `pause and next arrow apart in a ${height}px frame`).toBe(false)
+    }
+  })
+
   test('the pause button is only seen with the mouse or the focus on the carousel', async ({ page }) => {
     await setupMocks(page, stepConfig({ scroll: { mode: 'step', interval: 5 } }))
     await setupData(page, photoLines(3))

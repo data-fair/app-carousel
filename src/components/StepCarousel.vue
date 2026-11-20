@@ -3,7 +3,7 @@ import type { CarouselItem } from '@/composables/items'
 import type { Ref } from 'vue'
 import { computed, inject, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePreferredReducedMotion } from '@vueuse/core'
+import { useElementSize, usePreferredReducedMotion } from '@vueuse/core'
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js'
 import CarouselSlide from '@/components/CarouselSlide.vue'
 import PauseButton from '@/components/PauseButton.vue'
@@ -167,6 +167,11 @@ function onClickCapture (e: MouseEvent) {
 // first and last ones; a single photo keeps them over the image
 const gutters = computed(() => visible > 1)
 const buttonSize = computed(() => width < 300 ? 'small' : 'default')
+// in the gutter, the pause button goes under the next arrow, which stays centered like the
+// previous one; a frame too low for both puts it in the corner, over the images
+const sectionRef = ref<HTMLElement | null>(null)
+const { height: sectionHeight } = useElementSize(sectionRef)
+const pauseInGutter = computed(() => gutters.value && sectionHeight.value >= 140)
 
 function isShown (cellIndex: number) {
   return cellIndex >= position.value && cellIndex < position.value + visible
@@ -175,6 +180,7 @@ function isShown (cellIndex: number) {
 
 <template>
   <section
+    ref="sectionRef"
     class="step-carousel position-relative overflow-hidden"
     :class="{ 'h-100': !mediaHeight, 'px-14': scrolling && gutters }"
     :aria-label="label"
@@ -200,7 +206,7 @@ function isShown (cellIndex: number) {
           @click="go(-1)"
         />
       </div>
-      <div class="step-carousel__controls carousel-controls position-absolute top-0 bottom-0 right-0 mr-2 d-flex flex-column align-center justify-center ga-1">
+      <div class="step-carousel__controls carousel-controls position-absolute top-0 bottom-0 right-0 mr-2 d-flex align-center">
         <v-btn
           :icon="mdiChevronRight"
           :aria-label="t('next')"
@@ -209,16 +215,17 @@ function isShown (cellIndex: number) {
           @click="go(1)"
         />
         <pause-button
-          v-if="hasPause && gutters"
+          v-if="hasPause && pauseInGutter"
           v-model="userPaused"
+          class="step-carousel__pause-below position-absolute"
           :class="{ 'opacity-0': !pauseSeen }"
         />
       </div>
       <pause-button
-        v-if="hasPause && !gutters"
+        v-if="hasPause && !pauseInGutter"
         v-model="userPaused"
-        class="step-carousel__controls position-absolute top-0 right-0 ma-2"
-        :class="{ 'opacity-0': !pauseSeen }"
+        class="step-carousel__controls position-absolute top-0 right-0"
+        :class="[gutters ? 'mt-1 mr-16' : 'ma-2', { 'opacity-0': !pauseSeen }]"
       />
     </template>
     <div
@@ -268,6 +275,12 @@ function isShown (cellIndex: number) {
   touch-action: pan-y;
 }
 /* the translated track is a stacking context painted after the controls: keep them above it */
+/* under the next arrow without moving it off the center (no utility for a calc offset) */
+.step-carousel__pause-below {
+  top: calc(50% + 28px);
+  left: 50%;
+  transform: translateX(-50%);
+}
 .step-carousel__controls {
   z-index: 1;
 }
