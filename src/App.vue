@@ -56,8 +56,8 @@ const continuousScroll = computed(() => (config.value.scroll ?? {}) as Extract<S
 const label = computed(() => application?.title || t('carousel'))
 
 const emptyState = computed(() => {
-  if (error.value) return { headline: t('incompleteConfig'), title: error.value, icon: mdiImageMultiple }
-  if (dataError.value) return { headline: t('missingData'), title: dataError.value, icon: mdiImageOff }
+  if (error.value) return { headline: t('incompleteConfig'), title: t(error.value), icon: mdiImageMultiple }
+  if (dataError.value) return { headline: t('missingData'), title: t(dataError.value), icon: mdiImageOff }
   if (linesError.value) return { headline: t('loadError'), title: getErrorMsg(linesError.value), icon: mdiImageOff }
   if (!loading.value && rootWidth.value && !items.value.length) return { headline: t('noImage'), title: t('noImageDetail'), icon: mdiImageOff }
   return null
@@ -66,7 +66,7 @@ const emptyState = computed(() => {
 // report the configuration errors to data-fair in draft mode
 if (reactiveSearchParams.draft === 'true') {
   watch([error, dataError, linesError], ([cfgErr, dataErr, fetchErr]) => {
-    const message = cfgErr || dataErr || (fetchErr ? getErrorMsg(fetchErr) : null)
+    const message = cfgErr ? t(cfgErr) : dataErr ? t(dataErr) : fetchErr ? getErrorMsg(fetchErr) : null
     if (message) ofetch(window.APPLICATION.href + '/error', { body: { message }, method: 'POST' }).catch(() => {})
   }, { immediate: true })
 }
@@ -150,6 +150,9 @@ fr:
   loadError: Erreur de chargement
   noImage: Aucune image
   noImageDetail: Aucune ligne du jeu de données n'a d'image avec les filtres actuels.
+  noDataset: Choisissez un jeu de données.
+  noAttachment: Ajoutez des fichiers dans l'onglet « Pièces jointes » de l'application, puis choisissez-les dans la liste « Images » de la configuration.
+  noImageColumn: Le jeu de données n'a pas de colonne portant le concept « Image » ou « Document numérique attaché ».
 en:
   carousel: Carousel
   incompleteConfig: Incomplete configuration
@@ -157,4 +160,7 @@ en:
   loadError: Loading error
   noImage: No image
   noImageDetail: No line of the dataset has an image with the current filters.
+  noDataset: Choose a dataset.
+  noAttachment: Add files in the "Attachments" tab of the application, then choose them in the "Images" list of the configuration.
+  noImageColumn: The dataset has no column with the "Image" or "Attached digital document" concept.
 </i18n>

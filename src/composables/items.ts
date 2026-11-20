@@ -156,9 +156,10 @@ export function useItems (measuredSize: Ref<{ width: number, height: number }>) 
 
   const items = computed(() => allItems.value.filter(item => !failed.value.has(item.key)))
 
+  // key of the data error, translated by App.vue
   const dataError = computed(() => {
     if (!fromDataset.value || !dataset.value) return null
-    if (!imageField.value && !documentField.value) return 'Le jeu de données n\'a pas de colonne portant le concept « Image » ou « Document numérique attaché »'
+    if (!imageField.value && !documentField.value) return 'noImageColumn' as const
     return null
   })
 

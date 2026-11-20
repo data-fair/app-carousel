@@ -63,6 +63,14 @@ test.describe('sources and states', () => {
     await expect(page.getByText('Choisissez un jeu de données')).toBeVisible()
   })
 
+  test('the configuration messages follow the language of the session', async ({ page, baseURL }) => {
+    await page.context().addCookies([{ name: 'i18n_lang', value: 'en', url: baseURL! }])
+    await setupMocks(page, buildApplication({ source: 'dataset' }))
+    await gotoApp(page)
+    await expect(page.getByText('Incomplete configuration')).toBeVisible()
+    await expect(page.getByText('Choose a dataset.')).toBeVisible()
+  })
+
   test('no attachment chosen: a message says where to add them', async ({ page }) => {
     await setupMocks(page, buildApplication({ source: 'attachments', images: [] }))
     await gotoApp(page)

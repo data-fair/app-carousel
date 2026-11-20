@@ -188,7 +188,7 @@
           ],
           "oneOf": [
             {
-              "title": "Diaporama : une image après l’autre, avec des flèches",
+              "title": "Diaporama : une image après l'autre, avec des flèches",
               "properties": {
                 "mode": {
                   "const": "step"
@@ -524,7 +524,7 @@
                 "field": {
                   "type": "object",
                   "title": "Colonne de couleur",
-                  "description": "Par défaut, la colonne portant le concept « Couleur ». Les valeurs sont des couleurs CSS (#FFFFFF, red…) ; une valeur vide ou invalide laisse l'image sans fond.",
+                  "description": "Par défaut, la colonne portant le concept « Couleur ». Les valeurs sont des couleurs CSS (#FFFFFF, red...) ; une valeur vide ou invalide laisse l'image sans fond.",
                   "layout": {
                     "comp": "autocomplete",
                     "getItems": {
@@ -568,9 +568,9 @@
             "titleField": {
               "type": "object",
               "title": "Colonne du titre",
-              "description": "Par défaut, la colonne portant le concept « Libellé ». Même masqué, le titre reste le texte lu par les lecteurs d’écran.",
+              "description": "Par défaut, la colonne portant le concept « Libellé ». Même masqué, le titre reste le texte lu par les lecteurs d'écran.",
               "layout": {
-                "if": "rootData.source !== 'attachments' && rootData.datasets?.[0] && parent.data.showTitle !== false",
+                "if": "rootData.source !== 'attachments' && rootData.datasets?.[0]",
                 "comp": "autocomplete",
                 "getItems": {
                   "url": "${rootData.datasets?.[0]?.href || ''}/schema?calculated=false",
@@ -679,7 +679,6 @@
               "type": "string",
               "title": "Ouverture des liens",
               "default": "_top",
-              "description": "Une application est souvent affichée dans une page de portail : « Dans la page » remplace toute cette page par la page du lien.",
               "oneOf": [
                 {
                   "const": "_top",

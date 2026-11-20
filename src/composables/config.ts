@@ -11,7 +11,8 @@ export interface ConfigState {
   config: Ref<Config>
   dataset: Ref<Dataset | undefined>
   fields: Ref<Record<string, Field>>
-  error: Ref<string | null>
+  // key of the configuration error, translated by App.vue
+  error: Ref<'noAttachment' | 'noDataset' | null>
 }
 
 function setByPath (obj: Record<string, unknown>, path: string, value: unknown) {
@@ -34,10 +35,10 @@ export function createConfig () {
 
   const error = computed(() => {
     if (config.value?.source === 'attachments') {
-      if (!config.value.images?.some(i => i.attachment)) return 'Ajoutez des fichiers dans l\'onglet « Pièces jointes » de l\'application, puis choisissez-les dans la liste « Images » de la configuration'
+      if (!config.value.images?.some(i => i.attachment)) return 'noAttachment'
       return null
     }
-    if (!dataset.value) return 'Choisissez un jeu de données'
+    if (!dataset.value) return 'noDataset'
     return null
   })
 
