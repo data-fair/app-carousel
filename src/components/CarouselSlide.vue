@@ -25,6 +25,9 @@ watch(() => item.src, () => { loaded.value = false })
 // provided by App: the height of the images when the app sizes itself, undefined to fill the frame
 const mediaHeight = inject<Ref<number | undefined>>('carousel-media-height', ref(undefined))
 
+// provided by App: the width of the image when a ratio is squeezed by the frame
+const imageWidth = inject<Ref<number | undefined>>('carousel-image-width', ref(undefined))
+
 // provided by App: a broken image leaves the rotation
 const markFailed = inject<(key: string) => void>('carousel-mark-failed', () => {})
 
@@ -96,8 +99,9 @@ const padding = computed(() => (config.value.visible ?? 1) > 1 ? paddingClass[co
         v-if="mounted"
         :src="item.src"
         :alt="alt"
-        class="carousel-slide__img d-block w-100 h-100"
-        :class="config.fit === 'contain' ? 'carousel-slide__img--contain' : 'carousel-slide__img--cover'"
+        class="carousel-slide__img d-block h-100"
+        :class="[config.fit === 'contain' ? 'carousel-slide__img--contain' : 'carousel-slide__img--cover', imageWidth ? 'mx-auto' : 'w-100']"
+        :style="imageWidth ? { width: `${imageWidth}px` } : undefined"
         draggable="false"
         decoding="async"
         @load="loaded = true"

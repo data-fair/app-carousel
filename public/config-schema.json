@@ -276,7 +276,7 @@
           "required": [
             "type"
           ],
-          "description": "- **Toute la hauteur du cadre** : la page qui affiche l'application décide de sa hauteur (dans un portail, le mode d'affichage du bloc application).\n- **Ratio** et **Hauteur fixe** : l'application annonce sa hauteur. Dans un portail, choisissez « Hauteur optimale » dans le bloc application pour qu'elle soit suivie.",
+          "description": "- **Toute la hauteur du cadre** : les images prennent la hauteur que la page donne à l'application (dans un portail, le mode d'affichage du bloc application).\n- **Ratio** : l'application demande la hauteur qui garde ce ratio sur toute la largeur. Si la page ne la lui donne pas, les images gardent leur ratio dans la hauteur disponible, avec des marges sur les côtés : elles ne sont jamais coupées.\n- **Hauteur fixe** : l'application demande cette hauteur. Si la page ne la lui donne pas, les images prennent la hauteur du cadre.\n\nDans un portail, choisissez « Hauteur optimale » dans le bloc application pour que la hauteur demandée soit suivie.",
           "oneOf": [
             {
               "title": "Toute la hauteur du cadre",

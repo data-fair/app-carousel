@@ -209,8 +209,8 @@ test.describe('sources and states', () => {
     await expect(page.locator('.carousel-slide__media')).toHaveClass(/bg-primary/)
   })
 
-  test('a fixed height: the app takes its own height and announces it to the parent frame', async ({ page }) => {
-    await page.setViewportSize({ width: 1300, height: 700 })
+  test('a fixed height is announced; a frame that does not follow it is filled', async ({ page }) => {
+    await page.setViewportSize({ width: 1300, height: 100 })
     await setupMocks(page, buildApplication({
       source: 'dataset',
       datasets: [photoDataset],
@@ -221,30 +221,54 @@ test.describe('sources and states', () => {
     }))
     await setupData(page, photoLines(8))
     await gotoApp(page)
-    const measured = page.locator('[data-iframe-height=""]')
-    await expect(measured).toBeVisible()
+    const announced = page.locator('[data-iframe-height]')
+    await expect(announced).toHaveCount(1)
+    await expect(announced).toHaveCSS('height', '100px')
+    // the parent followed: the frame has the announced height
     await expect(page.locator('.carousel-slide__media').first()).toHaveCSS('height', '100px')
-    expect(Math.round((await measured.boundingBox())!.height)).toBe(100)
+    // the parent did not follow (taller frame): the images take the frame, the announce stays
+    await page.setViewportSize({ width: 1300, height: 300 })
+    await expect(page.locator('.carousel-slide__media').first()).toHaveCSS('height', '300px')
+    await expect(announced).toHaveCSS('height', '100px')
   })
 
   test('filling the frame: nothing is announced', async ({ page }) => {
     await setupMocks(page, buildApplication({ source: 'dataset', datasets: [photoDataset], scroll: { mode: 'step', interval: 0 } }))
     await setupData(page, photoLines(2))
     await gotoApp(page)
-    await expect(page.locator('[data-iframe-height="false"]')).toBeAttached()
-    await expect(page.locator('[data-iframe-height=""]')).toHaveCount(0)
+    await expect(page.locator('.carousel-slide').first()).toBeVisible()
+    await expect(page.locator('[data-iframe-height]')).toHaveCount(0)
   })
 
-  test('never a scrollbar, even when the frame is smaller than the images', async ({ page }) => {
+  test('a ratio higher than the frame: whole images with margins, the wanted height announced', async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 200 })
-    await setupMocks(page, buildApplication({ source: 'dataset', datasets: [photoDataset], scroll: { mode: 'step', interval: 0 }, height: { type: 'ratio', ratio: '1/1' } }))
+    await setupMocks(page, buildApplication({ source: 'dataset', datasets: [photoDataset], scroll: { mode: 'step', interval: 0 }, height: { type: 'ratio', ratio: '1/1' }, showTitle: false, link: 'none' }))
     await setupData(page, photoLines(2))
     await gotoApp(page)
-    await expect(page.locator('.carousel-slide').first()).toBeVisible()
+    const media = page.locator('[aria-roledescription="diapositive"]:not([inert]) .carousel-slide__media')
+    await expect(media).toHaveCSS('height', '200px')
+    // square, centered in its box, nothing cut: margins on the sides
+    const img = (await media.locator('img').boundingBox())!
+    expect(Math.round(img.width)).toBe(200)
+    expect(Math.round(img.height)).toBe(200)
+    expect(Math.round(img.x + img.width / 2)).toBe(400)
+    expect(img.y + img.height).toBeLessThanOrEqual(200)
+    // the parent may still grow the frame to the full width square
+    await expect(page.locator('[data-iframe-height]')).toHaveCSS('height', '800px')
+    // never a scrollbar
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden')
-    expect(await page.evaluate(() => document.scrollingElement!.scrollHeight > window.innerHeight)).toBe(true)
     await page.mouse.wheel(0, 500)
     expect(await page.evaluate(() => window.scrollY)).toBe(0)
+    // the parent followed: the full width again
+    await page.setViewportSize({ width: 800, height: 800 })
+    await expect(media).toHaveCSS('height', '800px')
+    expect(Math.round((await media.locator('img').boundingBox())!.width)).toBe(800)
+  })
+
+  test('an empty state announces its height, a host following it does not cut the message', async ({ page }) => {
+    await setupMocks(page, buildApplication({ source: 'dataset' }))
+    await gotoApp(page)
+    await expect(page.locator('.v-empty-state[data-iframe-height]')).toBeVisible()
   })
 
   test('the description stays when the title is hidden, the title stays the alternative', async ({ page }) => {
